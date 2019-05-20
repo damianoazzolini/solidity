@@ -133,6 +133,21 @@ string IRGeneratorForStatements::code() const
 	return m_code.str();
 }
 
+void IRGeneratorForStatements::initializeStateVar(VariableDeclaration const& _varDecl)
+{
+	if (!_varDecl.isConstant() && _varDecl.value())
+	{
+		_varDecl.value()->accept(*this);
+
+		solAssert(m_context.isStateVariable(_varDecl), "Must be a state variable.");
+
+		m_code << IRStorageItem{m_context, _varDecl}.storeValue(
+			m_context.variable(*_varDecl.value()),
+			type(*_varDecl.value())
+		);
+	}
+}
+
 void IRGeneratorForStatements::endVisit(VariableDeclarationStatement const& _varDeclStatement)
 {
 	for (auto const& decl: _varDeclStatement.declarations())
