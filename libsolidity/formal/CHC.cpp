@@ -61,10 +61,61 @@ bool CHC::visit(ContractDefinition const& _contract)
 	if (!shouldVisit(_contract))
 		return false;
 
+	m_contract = &_contract;
+
 	reset();
 
 	if (!SMTEncoder::visit(_contract))
 		return false;
+
+	for (auto const& contract: _contract.annotation().linearizedBaseContracts)
+		for (auto var: contract->stateVariables())
+			if (*contract == _contract || var->isVisibleInDerivedContracts())
+				m_stateVariables.push_back(var);
+
+	for (auto const& var: m_stateVariables)
+		// SMT solvers do not support function types as arguments.
+		if (var->type()->category() == Type::Category::Function)
+			m_stateSorts.push_back(make_shared<smt::Sort>(smt::Kind::Int));
+		else
+			m_stateSorts.push_back(smt::smtSort(*var->type()));
+
+	string interfaceName = "interface_" + _contract.name() + "_" + to_string(_contract.id());
+	m_interfacePredicate = createBlock(interfaceSort(),	interfaceName);
+
+	// TODO create static instances for Bool/Int sorts in SolverInterface.
+	auto boolSort = make_shared<smt::Sort>(smt::Kind::Bool);
+	auto errorFunctionSort = make_shared<smt::FunctionSort>(
+		vector<smt::SortPointer>(),
+		boolSort
+	);
+	m_errorPredicate = createBlock(errorFunctionSort, "error");
+
+	// If the contract has a constructor it is handled as a function.
+	// Otherwise we zero-initialize all state vars.
+	// TODO take into account state vars init values.
+	if (!_contract.constructor())
+	{
+		string constructorName = "constructor_" + _contract.name() + "_" + to_string(_contract.id());
+		m_constructorPredicate = createBlock(constructorSort(), constructorName);
+
+		for (auto const& var: m_stateVariables)
+		{
+			auto const& symbVar = m_context.variable(*var);
+			symbVar->increaseIndex();
+			m_interface->declareVariable(symbVar->currentName(), *symbVar->sort());
+			m_context.setZeroValue(*symbVar);
+		}
+
+		smt::Expression constructorAppl = (*m_constructorPredicate)({});
+		m_interface->addRule(constructorAppl, constructorName);
+
+		smt::Expression constructorInterface = smt::Expression::implies(
+			constructorAppl && m_context.assertions(),
+			interface()
+		);
+		m_interface->addRule(constructorInterface, constructorName + "_to_" + interfaceName);
+	}
 
 	return true;
 }
@@ -74,7 +125,15 @@ void CHC::endVisit(ContractDefinition const& _contract)
 	if (!shouldVisit(_contract))
 		return;
 
+	auto errorAppl = (*m_errorPredicate)({});
+	for (auto const& target: m_verificationTargets)
+		if (query(errorAppl, target->location()))
+			m_safeAssertions.insert(target);
+
 	SMTEncoder::endVisit(_contract);
+
+	solAssert(m_contract == &_contract, "");
+	m_contract = nullptr;
 }
 
 bool CHC::visit(FunctionDefinition const& _function)
@@ -130,6 +189,8 @@ void CHC::visitAssert(FunctionCall const&)
 
 void CHC::reset()
 {
+	m_stateSorts.clear();
+	m_stateVariables.clear();
 	m_verificationTargets.clear();
 	m_safeAssertions.clear();
 }
@@ -152,6 +213,72 @@ bool CHC::shouldVisit(FunctionDefinition const& _function)
 	)
 		return true;
 	return false;
+}
+
+smt::SortPointer CHC::constructorSort()
+{
+	solAssert(m_contract, "");
+	auto boolSort = make_shared<smt::Sort>(smt::Kind::Bool);
+	if (!m_contract->constructor())
+		return make_shared<smt::FunctionSort>(vector<smt::SortPointer>{}, boolSort);
+	return functionSort(*m_contract->constructor());
+}
+
+smt::SortPointer CHC::interfaceSort()
+{
+	auto boolSort = make_shared<smt::Sort>(smt::Kind::Bool);
+	return make_shared<smt::FunctionSort>(
+		m_stateSorts,
+		boolSort
+	);
+}
+
+smt::SortPointer CHC::functionSort(FunctionDefinition const& _function)
+{
+	auto boolSort = make_shared<smt::Sort>(smt::Kind::Bool);
+	auto const& funType = dynamic_cast<FunctionType const&>(*_function.type());
+	return make_shared<smt::FunctionSort>(
+		smt::smtSort(funType.parameterTypes()),
+		boolSort
+	);
+}
+
+
+shared_ptr<smt::SymbolicFunctionVariable> CHC::createBlock(smt::SortPointer _sort, string _name)
+{
+	auto block = make_shared<smt::SymbolicFunctionVariable>(
+		_sort,
+		_name,
+		m_context
+	);
+	m_interface->registerRelation(block->currentValue());
+	return block;
+}
+
+smt::Expression CHC::constructor()
+{
+	solAssert(m_contract, "");
+
+	if (!m_contract->constructor())
+		return (*m_constructorPredicate)({});
+
+	vector<smt::Expression> paramExprs;
+	for (auto const& var: m_contract->constructor()->parameters())
+		paramExprs.push_back(m_context.variable(*var)->currentValue());
+	return (*m_constructorPredicate)(paramExprs);
+}
+
+smt::Expression CHC::interface()
+{
+	vector<smt::Expression> paramExprs;
+	for (auto const& var: m_stateVariables)
+		paramExprs.push_back(m_context.variable(*var)->currentValue());
+	return (*m_interfacePredicate)(paramExprs);
+}
+
+smt::Expression CHC::error()
+{
+	return (*m_errorPredicate)({});
 }
 
 bool CHC::query(smt::Expression const& _query, langutil::SourceLocation const& _location)
