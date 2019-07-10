@@ -79,7 +79,8 @@ void BMC::analyze(SourceUnit const& _source, shared_ptr<Scanner> const& _scanner
 
 FunctionDefinition const* BMC::inlinedFunctionCallToDefinition(FunctionCall const& _funCall)
 {
-	if (_funCall.annotation().kind != FunctionCallKind::FunctionCall)
+	FunctionDefinition const* funDef = functionCallToDefinition(_funCall);
+	if (!funDef || !funDef->isImplemented())
 		return nullptr;
 
 	FunctionType const& funType = dynamic_cast<FunctionType const&>(*_funCall.expression().annotation().type);
@@ -100,24 +101,7 @@ FunctionDefinition const* BMC::inlinedFunctionCallToDefinition(FunctionCall cons
 	else if (funType.kind() != FunctionType::Kind::Internal)
 		return nullptr;
 
-	FunctionDefinition const* funDef = nullptr;
-	Expression const* calledExpr = &_funCall.expression();
-
-	if (TupleExpression const* fun = dynamic_cast<TupleExpression const*>(&_funCall.expression()))
-	{
-		solAssert(fun->components().size() == 1, "");
-		calledExpr = fun->components().front().get();
-	}
-
-	if (Identifier const* fun = dynamic_cast<Identifier const*>(calledExpr))
-		funDef = dynamic_cast<FunctionDefinition const*>(fun->annotation().referencedDeclaration);
-	else if (MemberAccess const* fun = dynamic_cast<MemberAccess const*>(calledExpr))
-		funDef = dynamic_cast<FunctionDefinition const*>(fun->annotation().referencedDeclaration);
-
-	if (funDef && funDef->isImplemented())
-		return funDef;
-
-	return nullptr;
+	return funDef;
 }
 
 /// AST visitors.

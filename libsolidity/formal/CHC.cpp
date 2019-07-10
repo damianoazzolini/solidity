@@ -141,8 +141,25 @@ bool CHC::visit(FunctionDefinition const& _function)
 	if (!shouldVisit(_function))
 		return false;
 
+	initFunction(_function);
+
 	solAssert(!m_currentFunction, "Inlining internal function calls not yet implemented");
 	m_currentFunction = &_function;
+
+	createFunctionBlock(*m_currentFunction);
+
+	smt::Expression interfaceFunction = smt::Expression::implies(
+		interface(),
+		predicateCurrent(m_currentFunction)
+	);
+	m_interface->addRule(
+		interfaceFunction,
+		m_interfacePredicate->currentName() + "_to_" + m_predicates.at(m_currentFunction)->currentName()
+	);
+
+	pushBlock(predicateCurrent(m_currentFunction));
+	solAssert(m_functionBlocks == 0, "");
+	m_functionBlocks = 1;
 
 	SMTEncoder::visit(*m_currentFunction);
 
@@ -155,7 +172,22 @@ void CHC::endVisit(FunctionDefinition const& _function)
 		return;
 
 	solAssert(m_currentFunction == &_function, "Inlining internal function calls not yet implemented");
+
+	smt::Expression functionInterface = smt::Expression::implies(
+		predicateEntry(&_function) && m_context.assertions(),
+		interface()
+	);
+	m_interface->addRule(
+		functionInterface,
+		m_predicates.at(&_function)->currentName() + "_to_" + m_interfacePredicate->currentName()
+	);
+
 	m_currentFunction = nullptr;
+	solAssert(m_path.size() == m_functionBlocks, "");
+	for (unsigned i = 0; i < m_path.size(); ++i)
+		m_context.popSolver();
+	m_functionBlocks = 0;
+	m_path.clear();
 
 	SMTEncoder::endVisit(_function);
 }
@@ -164,27 +196,125 @@ bool CHC::visit(IfStatement const& _if)
 {
 	solAssert(m_currentFunction, "");
 
+	bool functionCallSeen = false;
+	swap(m_functionCallSeen, functionCallSeen);
+
 	SMTEncoder::visit(_if);
 
+	if (m_functionCallSeen)
+		eraseKnowledge();
+
+	m_functionCallSeen = functionCallSeen;
+
+	return false;
+}
+
+bool CHC::visit(WhileStatement const& _while)
+{
+	eraseKnowledge();
+	m_context.resetVariables(touchedVariables(_while));
+	return false;
+}
+
+bool CHC::visit(ForStatement const& _for)
+{
+	eraseKnowledge();
+	m_context.resetVariables(touchedVariables(_for));
 	return false;
 }
 
 void CHC::endVisit(FunctionCall const& _funCall)
 {
+	m_functionCallSeen = true;
+
 	solAssert(_funCall.annotation().kind != FunctionCallKind::Unset, "");
 
-	if (_funCall.annotation().kind == FunctionCallKind::FunctionCall)
+	if (_funCall.annotation().kind != FunctionCallKind::FunctionCall)
 	{
-		FunctionType const& funType = dynamic_cast<FunctionType const&>(*_funCall.expression().annotation().type);
-		if (funType.kind() == FunctionType::Kind::Assert)
-			visitAssert(_funCall);
+		SMTEncoder::endVisit(_funCall);
+		return;
 	}
 
-	SMTEncoder::endVisit(_funCall);
+	FunctionType const& funType = dynamic_cast<FunctionType const&>(*_funCall.expression().annotation().type);
+	switch (funType.kind())
+	{
+	case FunctionType::Kind::Assert:
+		visitAssert(_funCall);
+		SMTEncoder::endVisit(_funCall);
+		break;
+	case FunctionType::Kind::Internal:
+	case FunctionType::Kind::External:
+	case FunctionType::Kind::DelegateCall:
+	case FunctionType::Kind::BareCall:
+	case FunctionType::Kind::BareCallCode:
+	case FunctionType::Kind::BareDelegateCall:
+	case FunctionType::Kind::BareStaticCall:
+	case FunctionType::Kind::Creation:
+	case FunctionType::Kind::KECCAK256:
+	case FunctionType::Kind::ECRecover:
+	case FunctionType::Kind::SHA256:
+	case FunctionType::Kind::RIPEMD160:
+	case FunctionType::Kind::BlockHash:
+	case FunctionType::Kind::AddMod:
+	case FunctionType::Kind::MulMod:
+		SMTEncoder::endVisit(_funCall);
+		unknownFunctionCall(_funCall);
+		break;
+	default:
+		SMTEncoder::endVisit(_funCall);
+		break;
+	}
 }
 
-void CHC::visitAssert(FunctionCall const&)
+void CHC::visitAssert(FunctionCall const& _funCall)
 {
+	auto const& args = _funCall.arguments();
+	solAssert(args.size() == 1, "");
+	solAssert(args.front()->annotation().type->category() == Type::Category::Bool, "");
+
+	solAssert(!m_path.empty(), "");
+
+	smt::Expression assertNeg = !(m_context.expression(*args.front())->currentValue());
+	smt::Expression assertionError = smt::Expression::implies(
+		m_path.back() && m_context.assertions() && assertNeg,
+		error()
+	);
+	string predicateName = "assert_" + to_string(_funCall.id());
+	m_interface->addRule(assertionError, predicateName + "_to_error");
+
+	m_verificationTargets.push_back(&_funCall);
+}
+
+void CHC::unknownFunctionCall(FunctionCall const& _funCall)
+{
+	/// Function calls are handled at the moment,
+	/// so always erase knowledge.
+	/// TODO remove when function calls get predicates/blocks.
+	eraseKnowledge();
+
+	FunctionDefinition const* funDef = functionCallToDefinition(_funCall);
+	if (!funDef)
+		return;
+
+	if (funDef->returnParameterList())
+		for (auto const& retParam: funDef->returnParameters())
+			createVariable(*retParam);
+
+	auto const& returnParams = funDef->returnParameters();
+	if (returnParams.size() > 1)
+	{
+		vector<shared_ptr<smt::SymbolicVariable>> components;
+		for (auto param: returnParams)
+		{
+			solAssert(m_context.variable(*param), "");
+			components.push_back(m_context.variable(*param));
+		}
+		auto const& symbTuple = dynamic_pointer_cast<smt::SymbolicTupleVariable>(m_context.expression(_funCall));
+		solAssert(symbTuple, "");
+		symbTuple->setComponents(move(components));
+	}
+	else if (returnParams.size() == 1)
+		defineExpr(_funCall, currentValue(*returnParams.front()));
 }
 
 void CHC::reset()
@@ -193,6 +323,13 @@ void CHC::reset()
 	m_stateVariables.clear();
 	m_verificationTargets.clear();
 	m_safeAssertions.clear();
+	m_functionCallSeen = false;
+}
+
+void CHC::eraseKnowledge()
+{
+	resetStateVariables();
+	m_context.resetVariables([&](VariableDeclaration const& _variable) { return _variable.hasReferenceOrMappingType(); });
 }
 
 bool CHC::shouldVisit(ContractDefinition const& _contract)
@@ -215,6 +352,18 @@ bool CHC::shouldVisit(FunctionDefinition const& _function)
 	return false;
 }
 
+void CHC::pushBlock(smt::Expression const& _block)
+{
+	m_context.pushSolver();
+	m_path.push_back(_block);
+}
+
+void CHC::popBlock()
+{
+	m_context.popSolver();
+	m_path.pop_back();
+}
+
 smt::SortPointer CHC::constructorSort()
 {
 	solAssert(m_contract, "");
@@ -235,24 +384,21 @@ smt::SortPointer CHC::interfaceSort()
 
 smt::SortPointer CHC::functionSort(FunctionDefinition const& _function)
 {
+	if (m_functionSorts.count(&_function))
+		return m_functionSorts.at(&_function);
+
 	auto boolSort = make_shared<smt::Sort>(smt::Kind::Bool);
-	auto const& funType = dynamic_cast<FunctionType const&>(*_function.type());
-	return make_shared<smt::FunctionSort>(
-		smt::smtSort(funType.parameterTypes()),
+	vector<smt::SortPointer> localSorts;
+	for (auto const& var: _function.parameters() + _function.returnParameters())
+		localSorts.push_back(smt::smtSort(*var->type()));
+	for (auto const& var: _function.localVariables())
+		localSorts.push_back(smt::smtSort(*var->type()));
+	auto functionSort = make_shared<smt::FunctionSort>(
+		m_stateSorts + localSorts,
 		boolSort
 	);
-}
 
-
-shared_ptr<smt::SymbolicFunctionVariable> CHC::createBlock(smt::SortPointer _sort, string _name)
-{
-	auto block = make_shared<smt::SymbolicFunctionVariable>(
-		_sort,
-		_name,
-		m_context
-	);
-	m_interface->registerRelation(block->currentValue());
-	return block;
+	return m_functionSorts[&_function] = move(functionSort);
 }
 
 smt::Expression CHC::constructor()
@@ -279,6 +425,66 @@ smt::Expression CHC::interface()
 smt::Expression CHC::error()
 {
 	return (*m_errorPredicate)({});
+}
+
+shared_ptr<smt::SymbolicFunctionVariable> CHC::createBlock(smt::SortPointer _sort, string _name)
+{
+	auto block = make_shared<smt::SymbolicFunctionVariable>(
+		_sort,
+		_name,
+		m_context
+	);
+	m_interface->registerRelation(block->currentValue());
+	return block;
+}
+
+void CHC::createFunctionBlock(FunctionDefinition const& _function)
+{
+	if (m_predicates.count(&_function))
+	{
+		m_predicates.at(&_function)->increaseIndex();
+		m_interface->registerRelation(m_predicates.at(&_function)->currentValue());
+	}
+	else
+		m_predicates[&_function] = createBlock(
+			functionSort(_function),
+			predicateName(_function)
+		);
+}
+
+vector<smt::Expression> CHC::functionParameters(FunctionDefinition const& _function)
+{
+	vector<smt::Expression> paramExprs;
+	for (auto const& var: m_stateVariables)
+		paramExprs.push_back(m_context.variable(*var)->currentValue());
+	for (auto const& var: _function.parameters() + _function.returnParameters())
+		paramExprs.push_back(m_context.variable(*var)->currentValue());
+	for (auto const& var: _function.localVariables())
+		paramExprs.push_back(m_context.variable(*var)->currentValue());
+	return paramExprs;
+}
+
+string CHC::predicateName(FunctionDefinition const& _function)
+{
+	string functionName = _function.isConstructor() ?
+		"constructor" :
+		_function.isFallback() ?
+			"fallback" :
+			"function_" + _function.name();
+	return functionName + "_" + to_string(_function.id());
+}
+
+smt::Expression CHC::predicateCurrent(ASTNode const* _node)
+{
+	solAssert(m_currentFunction, "");
+	vector<smt::Expression> paramExprs = functionParameters(*m_currentFunction);
+	return (*m_predicates.at(_node))(move(paramExprs));
+}
+
+smt::Expression CHC::predicateEntry(ASTNode const* _node)
+{
+	solAssert(!m_path.empty(), "");
+	return (*m_predicates.at(_node))(m_path.back().arguments);
 }
 
 bool CHC::query(smt::Expression const& _query, langutil::SourceLocation const& _location)

@@ -207,6 +207,10 @@ protected:
 	/// @returns a note to be added to warnings.
 	std::string extraComment();
 
+	/// @returns the FunctionDefinition of a FunctionCall
+	/// if possible or nullptr;
+	static FunctionDefinition const* functionCallToDefinition(FunctionCall const& _funCall);
+
 	smt::VariableUsage m_variableUsage;
 	bool m_arrayAssignmentHappened = false;
 	// True if the "No SMT solver available" warning was already created.
