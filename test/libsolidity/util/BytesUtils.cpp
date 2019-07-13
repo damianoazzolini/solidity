@@ -271,7 +271,7 @@ string BytesUtils::formatBytes(
 
 string BytesUtils::formatBytesRange(
 	bytes _bytes,
-	ParameterList const& _parameters,
+	dev::solidity::test::ParameterList const& _parameters,
 	bool _highlight
 )
 {

@@ -252,8 +252,8 @@ bool ContractABIUtils::appendTypesFromName(
 
 void ContractABIUtils::overwriteParameters(
 	ErrorReporter& _errorReporter,
-	ParameterList& _targetParameters,
-	ParameterList const& _sourceParameters
+	dev::solidity::test::ParameterList& _targetParameters,
+	dev::solidity::test::ParameterList const& _sourceParameters
 )
 {
 	auto overwrite = [&](Parameter _a, Parameter& _b) -> void
@@ -272,8 +272,8 @@ void ContractABIUtils::overwriteParameters(
 
 dev::solidity::test::ParameterList ContractABIUtils::preferredParameters(
 	ErrorReporter& _errorReporter,
-	ParameterList const& _targetParameters,
-	ParameterList const& _sourceParameters,
+	dev::solidity::test::ParameterList const& _targetParameters,
+	dev::solidity::test::ParameterList const& _sourceParameters,
 	bytes _bytes
 )
 {
