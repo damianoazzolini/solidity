@@ -3,6 +3,9 @@ contract C {
     constructor(uint _state) public {
         state = _state;
     }
+    function e(uint a) public {
+        state = a;
+    }
     function f() payable public returns (uint) {
         return 2;
     }
@@ -41,6 +44,7 @@ contract C {
 // constructor(): 3 ->
 // state() -> 3
 // _() -> FAILURE
+// e(uint256): 4
 // f() -> 2
 // f(), 1 ether -> 2
 // g() -> 2, 3
