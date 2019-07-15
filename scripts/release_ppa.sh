@@ -73,11 +73,11 @@ then
     SMTDEPENDENCY=""
     CMAKE_OPTIONS="-DSOLC_LINK_STATIC=On"
 else
-    if [ "$branch" = develop ]
+    if [ "$branch" = release ]
     then
-        pparepo=ethereum-dev
-    else
         pparepo=ethereum
+    else
+        pparepo=ethereum-dev
     fi
     SMTDEPENDENCY="libcvc4-dev,
                "
@@ -101,12 +101,12 @@ committimestamp=$(git show --format=%ci HEAD | head -n 1)
 commitdate=$(git show --format=%ci HEAD | head -n 1 | cut - -b1-10 | sed -e 's/-0?/./' | sed -e 's/-0?/./')
 
 echo "$commithash" > commit_hash.txt
-if [ $branch = develop ]
+if [ $branch = release ]
 then
-    debversion="$version~develop-$commitdate-$commithash"
-else
     debversion="$version"
     echo -n > prerelease.txt # proper release
+else
+    debversion="$version~develop-$commitdate-$commithash"
 fi
 
 # gzip will create different tars all the time and we are not allowed
