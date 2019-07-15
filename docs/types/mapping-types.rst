@@ -30,7 +30,13 @@ You can mark state variables of mapping type as ``public`` and Solidity creates 
 parameter for the getter. If ``_ValueType`` is a value type or a struct,
 the getter returns ``_ValueType``.
 If ``_ValueType`` is an array or a mapping, the getter has one parameter for
-each ``_KeyType``, recursively. For example with a mapping:
+each ``_KeyType``, recursively.
+
+In the example below, the ``MappingExample`` contract defines a public ``balances``
+mapping, with the key type an ``address``, and a value type a ``uint``, mapping
+an integer value to an Ethereum address. As ``uint`` is a value type, the getter
+returns a value that matches the type, which you can see in the ``MappingUser``
+contract that returns the value at the specified address.
 
 ::
 
