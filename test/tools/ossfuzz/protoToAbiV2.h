@@ -14,18 +14,10 @@
  *  pragma solidity >=0.0;
  *  pragma experimental ABIEncoderV2;
  *
- *  contract Factory {
- *      // Factory test function. Called by EVM client
- *      function test() external returns (uint) {
- *          C c = new C();
- *          return c.test();
- *      }
- *  }
- *
  * contract C {
  *      // State variable
  *      string x_0;
- *      // Test function. Called by Factory test function
+ *      // Test function that is called by the VM.
  *      function test() public returns (uint) {
  *          // Local variable
  *          bytes x_1 = "1";
@@ -243,9 +235,9 @@ private:
 
 	// String and bytes literals are derived by hashing a monotonically increasing
 	// counter and enclosing the said hash inside double quotes.
-	std::string bytesArrayValueAsString()
+	std::string bytesArrayValueAsString(unsigned _counter)
 	{
-		return "\"" + toHex(hashUnsignedInt(getNextCounter()), HexPrefix::DontAdd) + "\"";
+		return "\"" + toHex(hashUnsignedInt(_counter), HexPrefix::DontAdd) + "\"";
 	}
 
 	std::string getQualifier(DataType _dataType)
