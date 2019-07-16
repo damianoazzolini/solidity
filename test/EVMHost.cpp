@@ -24,6 +24,8 @@
 #include <test/evmc/helpers.hpp>
 #include <test/evmc/loader.h>
 
+#include <test/Options.h>
+
 #include <libevmasm/GasMeter.h>
 
 #include <libdevcore/Exceptions.h>
@@ -35,47 +37,28 @@ using namespace std;
 using namespace dev;
 using namespace dev::test;
 
-namespace
-{
 
-
-evmc::vm& getVM()
+evmc::vm* EVMHost::getVM(string const& _path)
 {
 	static unique_ptr<evmc::vm> theVM;
-	if (!theVM)
+	if (!theVM && !_path.empty())
 	{
-		// TODO make this an option
-		for (auto path: {
-			"deps/lib/libevmone.so",
-			"../deps/lib/libevmone.so",
-			"/usr/lib/libevmone.so",
-			"/usr/local/lib/libevmone.so",
-			// TODO the circleci docker image somehow only has the .a file
-			"/usr/lib/libevmone.a"
-		})
-		{
-			evmc_loader_error_code errorCode = {};
-			evmc_instance* vm = evmc_load_and_create(path, &errorCode);
-			if (!vm || errorCode != EVMC_LOADER_SUCCESS)
-				continue;
+		evmc_loader_error_code errorCode = {};
+		evmc_instance* vm = evmc_load_and_create(_path.c_str(), &errorCode);
+		if (vm && errorCode == EVMC_LOADER_SUCCESS)
 			theVM = make_unique<evmc::vm>(vm);
-			break;
-		}
-		if (!theVM)
-		{
-			cerr << "Unable to find library libevmone.so" << endl;
-			assertThrow(false, Exception, "");
-		}
 	}
-	return *theVM;
+	return theVM.get();
 }
 
-}
-
-
-EVMHost::EVMHost(langutil::EVMVersion _evmVersion):
-	m_vm(getVM())
+EVMHost::EVMHost(langutil::EVMVersion _evmVersion)
 {
+	if (!getVM())
+	{
+		cerr << "Unable to find library libevmone.so" << endl;
+		assertThrow(false, Exception, "");
+	}
+
 	if (_evmVersion == langutil::EVMVersion::homestead())
 		m_evmVersion = EVMC_HOMESTEAD;
 	else if (_evmVersion == langutil::EVMVersion::tangerineWhistle())
@@ -191,7 +174,7 @@ evmc::result EVMHost::call(evmc_message const& _message) noexcept
 
 	evmc_address currentAddress = m_currentAddress;
 	m_currentAddress = message.destination;
-	evmc::result result = m_vm.execute(*this, m_evmVersion, message, code.data(), code.size());
+	evmc::result result = getVM()->execute(*this, m_evmVersion, message, code.data(), code.size());
 	m_currentAddress = currentAddress;
 
 	if (message.kind == EVMC_CREATE)

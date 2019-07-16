@@ -29,7 +29,6 @@
 
 #include <libdevcore/FixedHash.h>
 
-
 namespace dev
 {
 namespace test
@@ -39,6 +38,11 @@ using Address = h160;
 class EVMHost: public evmc::Host
 {
 public:
+	/// Tries to dynamically load libevmone. @returns nullptr on failure.
+	/// The path has to be provided for the first successful run and will be ignored
+	/// afterwards.
+	static evmc::vm* getVM(std::string const& _path = {});
+
 	explicit EVMHost(langutil::EVMVersion _evmVersion);
 
 	struct Account
@@ -172,7 +176,6 @@ private:
 	/// @note The data object needs to be statically allocated!
 	static evmc::result resultWithGas(evmc_message const& _message, bytes const& _data) noexcept;
 
-	evmc::vm& m_vm;
 	evmc_revision m_evmVersion;
 };
 
