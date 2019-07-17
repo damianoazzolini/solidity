@@ -41,14 +41,14 @@ RUN set -ex; \
 	pip install codecov; \
 	rm -rf /var/lib/apt/lists/*
 
-# Aleth for end-to-end tests
-ARG ALETH_VERSION="1.6.0"
-ARG ALETH_HASH="7f7004e1563299bc57882e32b32e4a195747dfb6"
-ARG ALETH_URL="https://github.com/ethereum/aleth/releases/download/v${ALETH_VERSION}/aleth-${ALETH_VERSION}-linux-x86_64.tar.gz"
+# libevmone for end-to-end tests
+ARG EVMONE_VERSION="0.1.0"
+ARG EVMONE_HASH="93005b7021b3a294878444fa3ac610fb7330b7cd"
+ARG EVMONE_URL="https://github.com/ethereum/evmone/releases/download/v${EVMONE_VERSION}/evmone-${EVMONE_VERSION}-linux-x86_64.tar.gz"
 RUN set -ex; \
-	wget -q -O /tmp/aleth.tar.gz "${ALETH_URL}"; \
-	test "$(shasum /tmp/aleth.tar.gz)" = "$ALETH_HASH  /tmp/aleth.tar.gz"; \
-	tar -xf /tmp/aleth.tar.gz -C /usr
+	wget -q -O /tmp/evmone.tar.gz "${EVMONE_URL}"; \
+	test "$(shasum /tmp/evmone.tar.gz)" = "$EVMONE_HASH  /tmp/evmone.tar.gz"; \
+	tar -xf /tmp/evmone.tar.gz -C /usr
 
 # Z3
 RUN set -ex; \
