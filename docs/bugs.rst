@@ -3,78 +3,81 @@
 .. _known_bugs:
 
 ##################
-List of Known Bugs
+Lista di bug noti
 ##################
 
-Below, you can find a JSON-formatted list of some of the known security-relevant bugs in the
-Solidity compiler. The file itself is hosted in the `Github repository
+In questa sezione si trova una lista JSON con alcuni dei bachi di sicurezza noti 
+del compilatore Solidity. Il file si trova nel `repository Github
 <https://github.com/ethereum/solidity/blob/develop/docs/bugs.json>`_.
-The list stretches back as far as version 0.3.0, bugs known to be present only
-in versions preceding that are not listed.
+La lista parte dalla versione 0.3.0, i bug noti presenti nelle versioni 
+precedenti non sono elencati.
 
-There is another file called `bugs_by_version.json
+È presente anche un altro file chiamato `bugs_by_version.json
 <https://github.com/ethereum/solidity/blob/develop/docs/bugs_by_version.json>`_,
-which can be used to check which bugs affect a specific version of the compiler.
+che può essere utilizzato per controllare se un baco affligge una specifica versione
+del compilatore.
 
-Contract source verification tools and also other tools interacting with
-contracts should consult this list according to the following criteria:
+Gli strumenti di verifica di codice sorgente ed altri strumenti che interagiscono
+con i contratti dovrebbero consultare questa lista secondo i seguenti criteri:
 
- - It is mildly suspicious if a contract was compiled with a nightly
-   compiler version instead of a released version. This list does not keep
-   track of unreleased or nightly versions.
- - It is also mildly suspicious if a contract was compiled with a version that was
-   not the most recent at the time the contract was created. For contracts
-   created from other contracts, you have to follow the creation chain
-   back to a transaction and use the date of that transaction as creation date.
- - It is highly suspicious if a contract was compiled with a compiler that
-   contains a known bug and the contract was created at a time where a newer
-   compiler version containing a fix was already released.
+ - È abbastanza sospettoso se in contratto è stato compilato con una versione nightly
+   del compilatore invece di una versione rilasciata. Questa lista non mantiene 
+   traccia delle versioni non rilasciate o nightly.
+ - È altrettanto sospettoso se un contratto è stato compilato
+   con una versione del compilatore che non è la più recente alla creazione del
+   contratto stesso. Per contratti creati da altri contratti, per risalire alla versione
+   del compilatore bisogna risalire alla transazione che ha crato il primo contratto ed
+   utilizzare quella data come data di creazione.
+ - È altamente sospettoso il fatto che un contratto sia stato compilato con una versione
+   di un compilatore che contiene un baco noto e che una versione del compilatore con quel
+   baco risolto, al tempo della crezione del contratto, fosse già disponibile.
 
-The JSON file of known bugs below is an array of objects, one for each bug,
-with the following keys:
+Il file JSON per i bug noti è composto da un array di oggetti, uno per ogni baco,
+con le seguenti chiavi:
 
 name
-    Unique name given to the bug
+    Nome unico per il bug 
 summary
-    Short description of the bug
+    Breve descrizione del baco
 description
-    Detailed description of the bug
+    Descrizione dettagliata del baco
 link
-    URL of a website with more detailed information, optional
+    URL del sito con informazioni più dettagliate
 introduced
-    The first published compiler version that contained the bug, optional
+    La prima versione pubblicata del compilatore che introduce quel baco
 fixed
-    The first published compiler version that did not contain the bug anymore
+    La prima versione del compilatore pubblicata che non contiene più il baco
 publish
-    The date at which the bug became known publicly, optional
+    La data in cui il bug è diventato noto pubblicamente, facoltativo
 severity
-    Severity of the bug: very low, low, medium, high. Takes into account
-    discoverability in contract tests, likelihood of occurrence and
-    potential damage by exploits.
+    Severità del baco: molto bassa, bassa, media, alta. Tiene conto della
+    rilevabilità nei test dei contratti, della probabilità che accada e del
+    potenziale danno causato da un exploit.
 conditions
-    Conditions that have to be met to trigger the bug. The following
-    keys can be used:
-    ``optimizer``, Boolean value which
-    means that the optimizer has to be switched on to enable the bug.
-    ``evmVersion``, a string that indicates which EVM version compiler
-    settings trigger the bug. The string can contain comparison
-    operators. For example, ``">=constantinople"`` means that the bug
-    is present when the EVM version is set to ``constantinople`` or
-    later.
-    If no conditions are given, assume that the bug is present.
+    Condizioni che devono essere soddisfatte per far si che il bug si verifichi. 
+    Le seguenti chiavi possono essere utilizzate:
+    `` optimizer``, valore booleano che
+    significa che l'ottimizzatore deve essere attivo per far si che il bug si verifichi.
+    `` evmVersion``, una stringa che indica quali impostazioni della versione del compilatore 
+    EVM scatenano il bug. La stringa può contenere operatori di confronto. 
+    Ad esempio, `` "> = constantinople"`` significa che il bug
+    è presente quando la versione EVM è impostata su `` constantinople`` o
+    una più recente.
+    Se non viene indicata nessuna condizione, si suppone che il bug sia presente.
 check
-    This field contains different checks that report whether the smart contract
-    contains the bug or not. The first type of check are Javascript regular
-    expressions that are to be matched against the source code ("source-regex")
-    if the bug is present.  If there is no match, then the bug is very likely
-    not present. If there is a match, the bug might be present.  For improved
-    accuracy, the checks should be applied to the source code after stripping
-    comments.
-    The second type of check are patterns to be checked on the compact AST of
-    the Solidity program ("ast-compact-json-path"). The specified search query
-    is a `JsonPath <https://github.com/json-path/JsonPath>`_ expression.
-    If at least one path of the Solidity AST matches the query, the bug is
-    likely present.
+    Questo campo contiene diversi controlli che segnalano se lo smart contract
+    contiene il bug o no. Il primo tipo di controllo sono espressioni regolari Javascript
+    che devono essere confrontate con il codice sorgente ("source-regex")
+    se il bug è presente. Se non c'è corrispondenza, il bug molto probabilmente
+    non presente. Se c'è una corrispondenza, il bug potrebbe essere presente. 
+    Per migliorare l'accuratezza, i controlli dovrebbero essere applicati 
+    al codice sorgente dopo la rimozione dei commenti.
+    Il secondo tipo di controllo è costituito da pattern che dovrebbero essere controllati 
+    sul compact AST del programma Solidity ("ast-compact-json-path"). 
+    La query di ricerca specificata è un'espressione 
+    `JsonPath <https://github.com/json-path/JsonPath>` _.
+    Se almeno un percorso di Solidity AST corrisponde alla query, il bug è
+    probabilmente presente.
 
 .. literalinclude:: bugs.json
    :language: js
