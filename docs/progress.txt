@@ -2,3 +2,4 @@ Elenco pagine tradotte:
 - Yul.rst (quasi completamente, da controllare)
 - index.rst (tradotto, manca spellcheck)
 - bugs.rst (tradotto, manca spellcheck)
+- contracts.rst (tradotto, manca spellcheck)
