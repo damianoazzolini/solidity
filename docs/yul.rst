@@ -8,7 +8,7 @@ Yul [da controllare - da terminare lista]
 
 Yul (predendentemente chiamato JULIA o IULIA) è un linguaggio intermedio che può essere compilato in bytecode.
 
-Yul è sviluppato per essere un comune denominatore per le piattaforme EVM 1.0, EVM 1.5 ed eWASM poiché è stato pianificato
+Yul è stato sviluppato per essere un comune denominatore per le piattaforme EVM 1.0, EVM 1.5 ed eWASM poiché è stato pianificato
 il supporto per tutte e tre.
 Attualmente può essere utilizzato come "inline assembly" in solidity e le versioni future del compilatore
 Solidity utilizzeranno Yul come linguaggio intermedio. Yul è un buon target per ottimizzazioni di alto livello
@@ -192,7 +192,7 @@ for (ma non al di fuori del loop).
 Gli identificatori dichiarati in altre parti del loop rispettano le tradizionali
 regole di visibilità.
 I parametri e i parametri di ritorno delle funzioni sono visibili nel corpo della
-fuznione e i loro nomi devono essere univoci.
+funzione e i loro nomi devono essere univoci.
 
 Le variabili possono essere referenziate solamente dopo la dichiarazione.
 In particolare, le variabili non possono essere referenziate nella parte 
@@ -211,7 +211,7 @@ Specifiche Formali
 ------------------
 In questa sezione specifichiamo formalemente Yul fornendo la valutazione di 
 una funzione E overloaded sui vari nodi dell'AST.
-Ogni fuznione può avere side effect, quindi E prende in ingresso due
+Ogni funzione può avere side effect, quindi E prende in ingresso due
 state object e il nodo dell'AST e restituisce due nuovi state object e un 
 numero variabile di altri valori.
 I due state object sono il global state object (che nel contesto della 

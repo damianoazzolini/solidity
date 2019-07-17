@@ -6,93 +6,101 @@ Solidity
     :alt: Solidity logo
     :align: center
 
-Solidity is an object-oriented, high-level language for implementing smart
-contracts. Smart contracts are programs which govern the behaviour of accounts
-within the Ethereum state.
+Solidity è un linguaggio di programmazione ad alto livello per implementare smart contract.
+Uno smart contract è un programma che gestisce il comportamento degli account all'interno 
+di Ethereum.
 
-Solidity was influenced by C++, Python and JavaScript and is designed to target
-the Ethereum Virtual Machine (EVM).
+Solidity è stato influenzato da diversi linguaggi di programmazione come C++, Python e
+JavaScript ed è stato sviluppato per essere compilato per la Ethereum Virtual Machine (EVM).
 
-Solidity is statically typed, supports inheritance, libraries and complex
-user-defined types among other features.
+Solidity è un linguaggio con tipizzazione statica, supporta l'ereditarietà, librerie ed 
+anche la definizione di tipi di dato user-defined.
 
-With Solidity you can create contracts for uses such as voting, crowdfunding, blind auctions,
-and multi-signature wallets.
+Utilizando Solidity, si possono sviluppare contratti per la gestione di diverse
+situazioni come votazioni, crowdfunding, aste e wallet multi-signature.
 
-When deploying contracts, you should use the latest released version of Solidity. This is because breaking changes as well as new features and bug fixes are introduced regularly. We currently use a 0.x version number `to indicate this fast pace of change <https://semver.org/#spec-item-4>`_.
+Nello sviluppo di uno smart contract si dovrebbe utilizzare sempre l'ultima versione di 
+Solidity. Questo perché cambiamenti non retrocompatibili, nuove funzionalità e 
+correzione di bachi sono sviluppati ed aggiunti regolarmente.
 
 .. warning::
 
-  Solidity recently released the 0.5.x version that introduced a lot of breaking changes. Make sure you read :doc:`the full list <050-breaking-changes>`.
+  Recentemente è stata rilasciata la versione 0.5.X che introduce diversi cambiamenti non
+  retrocompatibili. Assicurarsi di leggere la :doc:`lista completa <050-breaking-changes>`.
 
-Language Documentation
-----------------------
+Documentazione
+--------------
 
-If you are new to the concept of smart contracts we recommend you start with
-:ref:`an example smart contract <simple-smart-contract>` written
-in Solidity. When you are ready for more detail, we recommend you read the
-:doc:`"Solidity by Example" <solidity-by-example>` and :doc:`"Solidity in Depth" <solidity-in-depth>` sections to learn the core concepts of the language.
+Se il lettore è nuovo allo sviluppo di smart contract, si raccomanda di iniziare con
+un :ref:`esempio di smart contract <simple-smart-contract>` scritto in Solidity. 
+Successivamente è consigliata la lettura delle sezioni 
+:doc:`"Solidity by Example" <solidity-by-example>` e di 
+:doc:`"Solidity in Dettaglio" <solidity-in-depth>` per prendere familiarità
+con i concetti fondamentali del linguaggio.
 
-For further reading, try :ref:`the basics of blockchains <blockchain-basics>`
-and details of the :ref:`Ethereum Virtual Machine <the-ethereum-virtual-machine>`.
+Per ulteriori letture, consultare :ref:`i fondamenti delle blockchain <blockchain-basics>`
+e i dettagli della :ref:`Ethereum Virtual Machine <the-ethereum-virtual-machine>`.
 
 .. hint::
-  You can always try out code examples in your browser with the
-  `Remix IDE <https://remix.ethereum.org>`_. Remix is a web browser based IDE
-  that allows you to write Solidity smart contracts, then deploy and run the
-  smart contracts. It can take a while to load, so please be patient.
-
+  È possibile provare gli esempi di codice nel browser utilizzando 
+  `Remix IDE <https://remix.ethereum.org>`_. Remix è un IDE online
+  che permette la scrittura di smart contract in Solidity e la loro 
+  esecuzione. Il caricamento della pagina può richiedere tempo.
+  
 .. warning::
-    As humans write software, it can have bugs. You should follow established
-    software development best-practices when writing your smart contracts, this
-    includes code review, testing, audits, and correctness proofs. Smart contract
-    users are sometimes more confident with code than their authors, and
-    blockchains and smart contracts have their own unique issues to
-    watch out for, so before working on production code, make sure you read the
-    :ref:`security_considerations` section.
+  Poiché il software è scritto da umani, questo può presentare dei bachi.
+  È consigliato seguire le guide linea per lo sviluppo di software durante
+  la scrittura di uno smart contract. Queste includono testing, auditing e 
+  dimostrazioni di correttezza. Gli utenti di uno smart contract sono solitamente
+  più fiduciosi nel codice rispetto ai loro scrittori e blockchain e smart contract
+  possono presentare diversi problemi. Si consiglia quindi la lettura della sezione
+  :ref:`considerazioni di sicurezza <security_considerations>`.
 
-If you have any questions, you can try searching for answers or asking on the
-`Ethereum Stackexchange <https://ethereum.stackexchange.com/>`_, or our `gitter channel <https://gitter.im/ethereum/solidity/>`_.
+Per eventuali domande, si può cercare una risposta o fare una domanda sul sito
+`Ethereum Stackexchange <https://ethereum.stackexchange.com/>`_, o sul 
+`canale gitter <https://gitter.im/ethereum/solidity/>`_.
 
-Ideas for improving Solidity or this documentation are always welcome, read our :doc:`contributors guide <contributing>` for more details.
+Idee per migiorare Solidity o questa documentazione sono sempre benvenute. 
+Per maggiori dettagli leggere la :doc:`contributors guide <contributing>`.
 
 .. _translations:
 
-Translations
-------------
+Traduzioni
+----------
 
-Community volunteers help translate this documentation into several languages.
-They have varying degrees of completeness and up-to-dateness. The English
-version stands as a reference.
+I volontari della community aiutano a tradurre la seguente documentazione.
+Le varie traduzioni presentano diversi livelli di completezza ed aggiornamento.
+La documentazione in inglese rimane il principale riferimento.
 
-* `Simplified Chinese <http://solidity-cn.readthedocs.io>`_ (in progress)
-* `Spanish <https://solidity-es.readthedocs.io>`_
-* `Turkish <https://github.com/denizozzgur/Solidity_TR/blob/master/README.md>`_ (partial)
-* `Russian <https://github.com/ethereum/wiki/wiki/%5BRussian%5D-%D0%A0%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE-%D0%BF%D0%BE-Solidity>`_ (rather outdated)
-* `Korean <http://solidity-kr.readthedocs.io>`_ (in progress)
-* `French <http://solidity-fr.readthedocs.io>`_ (in progress)
+* `Inglese <https://solidity.readthedocs.io>`_
+* `Cinese semplificato <http://solidity-cn.readthedocs.io>`_ (in progress)
+* `Spagnolo <https://solidity-es.readthedocs.io>`_
+* `Turco <https://github.com/denizozzgur/Solidity_TR/blob/master/README.md>`_ (parziale)
+* `Russo <https://github.com/ethereum/wiki/wiki/%5BRussian%5D-%D0%A0%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE-%D0%BF%D0%BE-Solidity>`_ (rather outdated)
+* `Coreano <http://solidity-kr.readthedocs.io>`_ (in progress)
+* `Francese <http://solidity-fr.readthedocs.io>`_ (in progress)
 
-Contents
-========
+Contenuto
+=========
 
-:ref:`Keyword Index <genindex>`, :ref:`Search Page <search>`
+:ref:`Indice delle parole chiave <genindex>`, :ref:`Pagina di Ricerca <search>`
 
 .. toctree::
-   :maxdepth: 2
+  :maxdepth: 2
 
-   introduction-to-smart-contracts.rst
-   installing-solidity.rst
-   solidity-by-example.rst
-   solidity-in-depth.rst
-   natspec-format.rst
-   security-considerations.rst
-   resources.rst
-   using-the-compiler.rst
-   metadata.rst
-   abi-spec.rst
-   yul.rst
-   style-guide.rst
-   common-patterns.rst
-   bugs.rst
-   contributing.rst
-   lll.rst
+  introduction-to-smart-contracts.rst
+  installing-solidity.rst
+  solidity-by-example.rst
+  solidity-in-depth.rst
+  natspec-format.rst
+  security-considerations.rst
+  resources.rst
+  using-the-compiler.rst
+  metadata.rst
+  abi-spec.rst
+  yul.rst
+  style-guide.rst
+  common-patterns.rst
+  bugs.rst
+  contributing.rst
+  lll.rst
