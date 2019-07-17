@@ -4,12 +4,13 @@ LLL
 
 .. _lll:
 
-LLL is a low-level language for the EVM with an s-expressions syntax.
+LLL è un linguaggio di basso livello per EVM con una sintassi basata su s-expression.
 
-The Solidity repository contains an LLL compiler, which shares the assembler subsystem with Solidity.
-However, apart from maintaining that it still compiles, no other improvements are made to it.
+Il repository Solidity contiene un compilatore LLL, che condivide il sottosistema 
+assembler con Solidity.
+Tuttavi, non vengono fatti più miglioramenti.
 
-It is not built unless specifically requested:
+LLL non viene compilato se non specificamente richiesto con:
 
 .. code-block:: bash
 
@@ -18,4 +19,4 @@ It is not built unless specifically requested:
 
 .. warning::
 
-    The LLL codebase is deprecated and will be removed from the Solidity repository in the future.
+    Il codice sorgente dil LLL è deprecato e sarà rimosso dal repository Solidity in futuro.

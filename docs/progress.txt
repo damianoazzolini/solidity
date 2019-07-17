@@ -3,3 +3,4 @@ Elenco pagine tradotte:
 - index.rst (tradotto, manca spellcheck)
 - bugs.rst (tradotto, manca spellcheck)
 - contracts.rst (tradotto, manca spellcheck)
+- lll.rst (tradotto, manca spellcheck)
