@@ -4,77 +4,76 @@ Contract Metadata
 
 .. index:: metadata, contract verification
 
-The Solidity compiler automatically generates a JSON file, the contract
-metadata, that contains information about the current contract. You can use
-this file to query the compiler version, the sources used, the ABI and NatSpec
-documentation to more safely interact with the contract and verify its source
-code.
+Il compilatore di Solidity genera automaticamente un file JSON che contiene 
+i metadati del contratto che rappresentano informazioni sul contratto corrente. 
+Questo file può essere usato per interrogare la versione del compilatore, 
+i sorgeti utilizzati, l'ABI e la documentazione NatSpec
+per interagire in modo più sicuro con il contratto e verificarne il codice.
 
-The compiler appends a Swarm hash of the metadata file to the end of the
-bytecode (for details, see below) of each contract, so that you can retrieve
-the file in an authenticated way without having to resort to a centralized
-data provider.
+Il compilatore aggiunge un hash Swarm del file coi metadati alla fine del file
+bytecode (per i dettagli, vedi sotto) di ciascun contratto, in modo da poterlo 
+recuperare in modo autenticato senza dover ricorrere ad una soluzione centralizzata.
 
-You have to publish the metadata file to Swarm (or another service) so that
-others can access it. You create the file by using the ``solc --metadata``
-command that generates a file called ``ContractName_meta.json``. It contains
-Swarm references to the source code, so you have to upload all source files and
-the metadata file.
 
-The metadata file has the following format. The example below is presented in a
-human-readable way. Properly formatted metadata should use quotes correctly,
-reduce whitespace to a minimum and sort the keys of all objects to arrive at a
-unique formatting. Comments are not permitted and used here only for
-explanatory purposes.
+Il file dei metadati deve essere pubblicato su Swarm (o su un altro servizio) 
+in modo che altri possono accedervi. Si può creare il file usando il
+comando `` solc --metadata`` che genera un file chiamato "ContractName_meta.json``. 
+Questo file contiene i riferimenti Swarm al codice sorgente, quindi bisogna caricare 
+tutti i file sorgente e il file contenente i metadati.
+
+Il file coi metadati ha il seguente formato. L'esempio seguente è presentato in a
+modo human-readable. I metadati correttamente formattati dovrebbero usare le
+virgolette correttamente, ridurre gli spazi al minimo e ordinare le chiavi di 
+tutti gli oggetti per arrivare ad una formattazione unica. 
+I commenti non sono consentiti e vengono usati qui solo per scopi esplicativi.
 
 .. code-block:: none
 
     {
-      // Required: The version of the metadata format
+      // Richiesto: la versione del formato dei metadati
       version: "1",
-      // Required: Source code language, basically selects a "sub-version"
-      // of the specification
+      // Richiesto: source code language
       language: "Solidity",
-      // Required: Details about the compiler, contents are specific
-      // to the language.
+      // Richiesto: dettagli riguardanti il compilatore, i contenuti sono
+      // specifici per ogni linguaggio
       compiler: {
-        // Required for Solidity: Version of the compiler
+        // Richiesto per Solidity: versione del compilatore
         version: "0.4.6+commit.2dabbdf0.Emscripten.clang",
-        // Optional: Hash of the compiler binary which produced this output
+        // Opzionale: hash dei binari del compilatore che produce questo output
         keccak256: "0x123..."
       },
-      // Required: Compilation source files/source units, keys are file names
+      // Richiesto: file sorgenti, le key sono nomi di file
       sources:
       {
         "myFile.sol": {
-          // Required: keccak256 hash of the source file
+          // Richiesto: hash keccak256 del file sorgente
           "keccak256": "0x123...",
-          // Required (unless "content" is used, see below): Sorted URL(s)
-          // to the source file, protocol is more or less arbitrary, but a
-          // Swarm URL is recommended
+          // Richiesto (a meno che "content" sia, veid sotto): URL ordinati
+          // ai file sorgenti, il protocollo è arbitrario, ma un URL
+          // Swarm è consigliato
           "urls": [ "bzzr://56ab..." ]
         },
         "mortal": {
-          // Required: keccak256 hash of the source file
+          // Richiesto: hash keccak256 del file sorgente
           "keccak256": "0x234...",
-          // Required (unless "url" is used): literal contents of the source file
+          // Richiesto (a meno che non venga usato "url"): contenuto del file sorgente
           "content": "contract mortal is owned { function kill() { if (msg.sender == owner) selfdestruct(owner); } }"
         }
       },
-      // Required: Compiler settings
+      // Richiesto: impostazioni del compilatore
       settings:
       {
-        // Required for Solidity: Sorted list of remappings
+        // Richiesto per Solidity: lista ordinata di remappings
         remappings: [ ":g=/dir" ],
-        // Optional: Optimizer settings. The fields "enabled" and "runs" are deprecated
-        // and are only given for backwards-compatibility.
+        // Opzionale: impostazioni di ottimizzazione. Il campo "enabled" e "runs" sono deprecati
+        // e sono mantenuti solo per retrocompatibilità.
         optimizer: {
           enabled: true,
           runs: 500,
           details: {
-            // peephole defaults to "true"
+            // peephole default a "true"
             peephole: true,
-            // jumpdestRemover defaults to "true"
+            // jumpdestRemover default a "true"
             jumpdestRemover: true,
             orderLiterals: false,
             deduplicate: false,
@@ -85,40 +84,40 @@ explanatory purposes.
           }
         },
         metadata: {
-          // Reflects the setting used in the input json, defaults to false
+          // Riflette le impostazioni di input json, defaults a false
           useLiteralContent: true
         }
-        // Required for Solidity: File and name of the contract or library this
-        // metadata is created for.
+        // Richiesto per Solidity: file e nome del contratto o libreria per il quale
+        // questi metadata sono creati.
         compilationTarget: {
           "myFile.sol": "MyContract"
         },
-        // Required for Solidity: Addresses for libraries used
+        // Richiesto per Solidity: indirizzi delle librerie utilizzate
         libraries: {
           "MyLib": "0x123123..."
         }
       },
-      // Required: Generated information about the contract.
+      // Richiesto: informazioni generate sul contratto.
       output:
       {
-        // Required: ABI definition of the contract
+        // Richiesto: definizione ABI del contratto.
         abi: [ ... ],
-        // Required: NatSpec user documentation of the contract
+        // Richiesto: documentazione utente NatSpec del contratto
         userdoc: [ ... ],
-        // Required: NatSpec developer documentation of the contract
+        // Richiesto: documentazione sviluppatore NatSpec del contratto
         devdoc: [ ... ],
       }
     }
 
 .. warning::
-  Since the bytecode of the resulting contract contains the metadata hash, any
-  change to the metadata results in a change of the bytecode. This includes
-  changes to a filename or path, and since the metadata includes a hash of all the
-  sources used, a single whitespace change results in different metadata, and
-  different bytecode.
+  Poiché il bytecode del contratto risultante contiene l'hash dei metadati, qualsiasi
+  cambiamento dei metadati si riflette in una modifica del bytecode. Ciò comprende
+  cambiamenti in un nome di un file o percorso, e dal momento che i metadati includono 
+  un hash di tutte le fonti utilizzate, anche un singolo cambiamento di uno spazio bianco 
+  produce metadati diversi e bytecode diverso.
 
 .. note::
-    Note the ABI definition above has no fixed order. It can change with compiler versions.
+    Notare che la definizione ABI sopra non ha un ordine fisso. Può cambiare con le versioni del compilatore.
 
 Encoding of the Metadata Hash in the Bytecode
 =============================================
