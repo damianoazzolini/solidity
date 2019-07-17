@@ -1,0 +1,2 @@
+Elenco pagine tradotte:
+- Yul.rst (quasi completamente, da controllare)
