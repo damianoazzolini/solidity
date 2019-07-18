@@ -4,3 +4,4 @@ Elenco pagine tradotte:
 - bugs.rst (tradotto, manca spellcheck)
 - contracts.rst (tradotto, manca spellcheck)
 - lll.rst (tradotto, manca spellcheck)
+- metadata.rst (tradotto, manca spellcheck)

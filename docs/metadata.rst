@@ -122,69 +122,75 @@ I commenti non sono consentiti e vengono usati qui solo per scopi esplicativi.
 Encoding of the Metadata Hash in the Bytecode
 =============================================
 
-Because we might support other ways to retrieve the metadata file in the future,
-the mapping ``{"bzzr0": <Swarm hash>, "solc": <compiler version>}`` is stored
-`CBOR <https://tools.ietf.org/html/rfc7049>`_-encoded. Since the mapping might
-contain more keys (see below) and the beginning of that
-encoding is not easy to find, its length is added in a two-byte big-endian
-encoding. The current version of the Solidity compiler usually adds the following
-to the end of the deployed bytecode::
+Perché in futuro potranno essere supportati altri modi per recuperare il file dei metadati,
+il mapping `` {"bzzr0": <Swarm hash>, "solc": <versione del compilatore>} `` è memorizzato
+con encoding `CBOR <https://tools.ietf.org/html/rfc7049>`_. 
+Dal momento che la mappatura potrebbe contiene più chiavi (vedi sotto) e 
+l'inizio di questa codifica non è facile da trovare, la sua lunghezza viene aggiunta 
+in un encoding a 2 byte big-endian. 
+La versione corrente del compilatore di Solidity di solito aggiunge quanto segue
+alla fine del bytecode ::
 
     0xa2
     0x65 'b' 'z' 'z' 'r' '0' 0x58 0x20 <32 bytes swarm hash>
     0x64 's' 'o' 'l' 'c' 0x43 <3 byte version encoding>
     0x00 0x32
 
-So in order to retrieve the data, the end of the deployed bytecode can be checked
-to match that pattern and use the Swarm hash to retrieve the file.
+Quindi, per recuperare i dati, è possibile controllare la fine del bytecode
+e cercare, cercare il pattern precedente ed utilizzare l'hash Swarm 
+per recuperare il file.
 
-Whereas release builds of solc use a 3 byte encoding of the version as shown
-above (one byte each for major, minor and patch version number), prerelease builds
-will instead use a complete version string including commit hash and build date.
-
-.. note::
-  The CBOR mapping can also contain other keys, so it is better to fully
-  decode the data instead of relying on it starting with ``0xa265``.
-  For example, if any experimental features that affect code generation
-  are used, the mapping will also contain ``"experimental": true``.
+Mentre le release di solc usano una codifica a 3 byte della versione come mostrato
+sopra (un byte ciascuno per il numero di versione maggiore, minore e patch), 
+le prerelease utilizzano invece una stringa di versione completa che include l'hash 
+del commit e la data di compilazione.
 
 .. note::
-  The compiler currently uses the "swarm version 0" hash of the metadata,
-  but this might change in the future, so do not rely on this sequence
-  to start with ``0xa2 0x65 'b' 'z' 'z' 'r' '0'``. We might also
-  add additional data to this CBOR structure, so the
-  best option is to use a proper CBOR parser.
+  La mappatura CBOR può contenere anche altre chiavi, quindi è meglio
+  decodificare completamente i dati invece di fare affidamento sul fatto che 
+  inizi con `` 0xa265``.
+  Ad esempio, se vengono utilizzate alcune funzionalità sperimentali 
+  che influiscono sulla generazione del codice, la mappatura conterrà 
+  anche `` "experimental": true``
+
+.. note::
+  Il compilatore utilizza attualmente l'hash "swarm version 0" dei metadati,
+  ma questa convenzione potrebbe cambiare in futuro. Non fare quindi affidamento 
+  sulla sequenza iniziale `` 0xa2 0x65 'b' 'z' 'z' 'r' '0'``. Potrebbero essere aggiunti
+  anche ulteriori dati alla struttura CBOR, quindi
+  l'opzione migliore è usare un parser per CBOR.
 
 
-Usage for Automatic Interface Generation and NatSpec
-====================================================
+Utilizzo per Automatic Interface Generation e NatSpec
+=====================================================
 
-The metadata is used in the following way: A component that wants to interact
-with a contract (e.g. Mist or any wallet) retrieves the code of the contract, from that
-the Swarm hash of a file which is then retrieved.
-That file is JSON-decoded into a structure like above.
+I metadati vengono utilizzati nel modo seguente: un componente che desidera interagire
+con un contratto (ad esempio Mist o qualsiasi portafoglio) recupera il codice del contratto, 
+dal quale recupera l'hash Swarm di un file che viene quindi recuperato.
+Quel file è decodificato da JSON in una struttura come sopra.
 
-The component can then use the ABI to automatically generate a rudimentary
-user interface for the contract.
+Il componente quindi usa l'ABI per generare automaticamente una rudimentale interfaccia
+per il contratto.
 
-Furthermore, the wallet can use the NatSpec user documentation to display a confirmation message to the user
-whenever they interact with the contract, together with requesting
-authorization for the transaction signature.
+Inoltre, il wallet può usare la documentazione utente NatSpec per mostrare un messaggio di
+conferma ogni volta che interagisce con il contratto, insieme alla richiesta di autorizzazione
+per la firma della transazione.
 
-For additional information, read :doc:`Ethereum Natural Language Specification (NatSpec) format <natspec-format>`.
+Per maggiori informazioni leggere :doc:`Specifiche Ethereum in Linguaggio Naturale (NatSpec) format <natspec-format>`.
 
-Usage for Source Code Verification
-==================================
+Utilizzo per Verifica del Codice Sorgente
+=========================================
 
-In order to verify the compilation, sources can be retrieved from Swarm
-via the link in the metadata file.
-The compiler of the correct version (which is checked to be part of the "official" compilers)
-is invoked on that input with the specified settings. The resulting
-bytecode is compared to the data of the creation transaction or ``CREATE`` opcode data.
-This automatically verifies the metadata since its hash is part of the bytecode.
-Excess data corresponds to the constructor input data, which should be decoded
-according to the interface and presented to the user.
+Per verificare la compilazione, i sorgenti possono essere recuperati da Swarm
+tramite il link nel file contenente i metadati. 
+Il compilatore della versione corretta (viene controllato che faccia parte 
+dei compilatori "ufficiali") viene invocato su quell'input con le impostazioni specificate.
+Il bytecode risultato viene confrontato con i dati della transazione di creazione 
+o con i dati opcode `` CREATE``.
+Questo processo verifica automaticamente i metadati poiché l'hash è parte del bytecode.
+I dati in eccesso corrispondono ai dati di input del costruttore, che devono essere decodificati
+secondo l'interfaccia e presentati all'utente.
 
-In the repository `source-verify <https://github.com/ethereum/source-verify>`_
-(`npm package <https://www.npmjs.com/package/source-verify>`_) you can see
-example code that shows how to use this feature.
+Nel repository `source-verify <https://github.com/ethereum/source-verify>`_
+(`npm package <https://www.npmjs.com/package/source-verify>`_) è presente un codice
+di esempio che mostra questa funzionalità.
