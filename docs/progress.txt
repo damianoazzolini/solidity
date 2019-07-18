@@ -6,4 +6,4 @@ Elenco pagine tradotte:
 - lll.rst (tradotto, manca spellcheck)
 - metadata.rst (tradotto, manca spellcheck)
 - natspec-format.rst (tradotto, manca spellcheck)
-- resources.rst (iniziato, manca spellcheck)
+- resources.rst (tradotto, manca spellcheck)
