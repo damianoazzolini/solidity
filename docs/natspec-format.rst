@@ -1,8 +1,8 @@
 .. _natspec:
 
-##############
+###############
 Formato NatSpec
-##############
+###############
 
 I contratti Solidity possono utilizzare una speciale forma di commenti per 
 fornire un'ampia documentazione per funzioni, valori di ritorno etc. 

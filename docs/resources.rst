@@ -1,8 +1,8 @@
-Resources
----------
+Risorse
+-------
 
-General
-~~~~~~~
+Generali
+~~~~~~~~
 
 * `Ethereum <https://ethereum.org>`_
 
@@ -16,49 +16,49 @@ General
 
 * `Compiler Developers Chat <https://gitter.im/ethereum/solidity-dev/>`_
 
-Solidity Integrations
-~~~~~~~~~~~~~~~~~~~~~
+Integrazioni con Solidity
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Generic:
+* Generiche:
 
     * `EthFiddle <https://ethfiddle.com/>`_
-        Solidity IDE in the Browser. Write and share your Solidity code. Uses server-side components.
+        Solidity Browser IDE. Scrivi e condividi il tuo codice Solidity. Utilizza componenti server-side.
 
     * `Remix <https://remix.ethereum.org/>`_
-        Browser-based IDE with integrated compiler and Solidity runtime environment without server-side components.
+        Browser-based IDE con un compilatore integrato ed un ambiente Solidity runtime senza componenti server-side.
 
     * `Solhint <https://github.com/protofire/solhint>`_
-        Solidity linter that provides security, style guide and best practice rules for smart contract validation.
+        Solidity linter che fornisce guide linea e best practice per la verifica di smart contract.
 
     * `Solidity IDE <https://github.com/System-Glitch/Solidity-IDE>`_
-        Browser-based IDE with integrated compiler, Ganache and local file system support.
+        Browser-based IDE con compilatore intgrato e supporto per Ganache e local file system.
 
     * `Solium <https://github.com/duaraghav8/Solium/>`_
-        Linter to identify and fix style and security issues in Solidity.
+        Linter per identificare e sistemare problemi di stile e di sicurezza in Solidity.
 
     * `Superblocks Lab <https://lab.superblocks.com/>`_
-        Browser-based IDE. Built-in browser-based VM and Metamask integration (one click deployment to Testnet/Mainnet).
+        Browser-based IDE. Built-in browser-based VM ed integrazione con Metamask (one click deployment to Testnet/Mainnet).
 
 * Atom:
 
     * `Etheratom <https://github.com/0mkara/etheratom>`_
-        Plugin for the Atom editor that features syntax highlighting, compilation and a runtime environment (Backend node & VM compatible).
+        Plugin per l'editor Atom che fornisce syntax highlighting, compilazione ed un runtime environment (compatibile con backend node & VM).
 
     * `Atom Solidity Linter <https://atom.io/packages/linter-solidity>`_
-        Plugin for the Atom editor that provides Solidity linting.
+        Plugin per Atom che fornisce linting per Solidity.
 
     * `Atom Solium Linter <https://atom.io/packages/linter-solium>`_
-        Configurable Solidty linter for Atom using Solium as a base.
+        Solidty linter configurabile per atom Atom basato su Solium.
 
 * Eclipse:
 
    * `YAKINDU Solidity Tools <https://yakindu.github.io/solidity-ide/>`_
-        Eclipse based IDE. Features context sensitive code completion and help, code navigation, syntax coloring, built in compiler, quick fixes and templates.
+        IDE basato su Eclipse. Fornisce code completion context sensitive ed help, code navigation, syntax coloring, compilatore built in, quick fixes e template.
 
 * Emacs:
 
     * `Emacs Solidity <https://github.com/ethereum/emacs-solidity/>`_
-        Plugin for the Emacs editor providing syntax highlighting and compilation error reporting.
+        Plugin per l'editor Emacs che fornisce syntax highlighting e report per errori di compilazione.
 
 * IntelliJ:
 
