@@ -5,3 +5,4 @@ Elenco pagine tradotte:
 - contracts.rst (tradotto, manca spellcheck)
 - lll.rst (tradotto, manca spellcheck)
 - metadata.rst (tradotto, manca spellcheck)
+- natspec-format.rst (tradotto, manca spellcheck)

@@ -176,7 +176,7 @@ Inoltre, il wallet può usare la documentazione utente NatSpec per mostrare un m
 conferma ogni volta che interagisce con il contratto, insieme alla richiesta di autorizzazione
 per la firma della transazione.
 
-Per maggiori informazioni leggere :doc:`Specifiche Ethereum in Linguaggio Naturale (NatSpec) format <natspec-format>`.
+Per maggiori informazioni leggere :doc:`Ethereum Natural Language Specification Format (NatSpec) <natspec-format>`.
 
 Utilizzo per Verifica del Codice Sorgente
 =========================================

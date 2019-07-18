@@ -1,51 +1,53 @@
 .. _natspec:
 
 ##############
-NatSpec Format
+Formato NatSpec
 ##############
 
-Solidity contracts can use a special form of comments to provide rich
-documentation for functions, return variables and more. This special form is
-named the Ethereum Natural Language Specification Format (NatSpec).
+I contratti Solidity possono utilizzare una speciale forma di commenti per 
+fornire un'ampia documentazione per funzioni, valori di ritorno etc. 
+Questo formato speciale è chiamato Ethereum Natural Language Specification 
+Format (NatSpec).
 
-This documentation is segmented into developer-focused messages and end-user-facing
-messages. These messages may be shown to the end user (the human) at the
-time that they will interact with the contract (i.e. sign a transaction).
+Questa documentazione è suddivisa in messaggi riguardanti gli sviluppatori e 
+messaggi riguardanti gli utenti. 
+Questi messaggi possono essere mostrati all'utente finale (l'umano) quando 
+interagiscono con il contratto (per esempio durante la firma di una transazione).
 
-It is recommended that Solidity contracts are fully annontated using NatSpec for
-all public interfaces (everything in the ABI).
+Si raccomanda che i contratti Solidity siano interamente annotati utilizzando NatSpec per
+tutte le interfacce pubbliche (ogni dato nell'ABI).
 
-NatSpec includes the formatting for comments that the smart contract author will
-use, and which are understood by the Solidity compiler. Also detailed below is
-output of the Solidity compiler, which extracts these comments into a machine-readable
-format.
+NatSpec include specifiche per la formattazione dei commenti dello smart contract, 
+e che sono interpretati dal compilatore Solidity. Sotto viene dettagliato
+l'output del compilatore Solidity che estrae questi commenti e li trasforma in un
+formato machine-readable.
 
 .. _header-doc-example:
 
-Documentation Example
-=====================
+Esempio di Documentazione
+=========================
 
-Documentation is inserted above each ``class``, ``interface`` and
-``function`` using the doxygen notation format.
+La documentazione è inserita al di sopra di ogni ``class``, ``interface`` e
+``function`` utilizzando il formato doxygen.
 
--  For Solidity you may choose ``///`` for single or multi-line
-   comments, or ``/**`` and ending with ``*/``.
+-  Per Solidity si può utilizzare ``///`` per un commento singola line o multi-line
+   oppure ``/**`` terminato da ``*/``.
 
--  For Vyper, use ``"""`` indented to the inner contents with bare
-   comments. See `Vyper
-   documentation <https://vyper.readthedocs.io/en/latest/structure-of-a-contract.html#natspec-metadata>`__.
+-  Per Vyper, si utilizza ``"""`` indentato. Vedere la `documentazione Vyper
+   <https://vyper.readthedocs.io/en/latest/structure-of-a-contract.html#natspec-metadata>`__.
 
-The following example shows a contract and a function using all available tags.
+L'esempio seguente mostra un contratto ed una funzione utilizzando tutti i tag disponibili.
+I commenti non sono stati tradotti ma sono stati mantenuti in inglese.
 
 .. note::
 
-  NatSpec currently does NOT apply to public state variables (see
+  NatSpec attualmente NON si applica a variabili di stato pubbliche (consultare
   `solidity#3418 <https://github.com/ethereum/solidity/issues/3418>`__),
-  even if they are declared public and therefore do affect the ABI.
+  anche se sono dichiarate pubbliche e quindi interessano l'ABI.
 
-  The Solidity compiler only interprets tags if they are external or
-  public. You are welcome to use similar comments for your internal and
-  private functions, but those will not be parsed.
+  Il compilatore Solidity interpreta i tag solamente se sono external o
+  public. I commenti per funzioni internal o private sono benvenuti ma non
+  vengono tradotti.
 
 .. code:: solidity
 
@@ -68,91 +70,91 @@ The following example shows a contract and a function using all available tags.
 
 .. _header-tags:
 
-Tags
-====
+Tag
+===
 
-All tags are optional. The following table explains the purpose of each
-NatSpec tag and where it may be used. As a special case, if no tags are
-used then the Solidity compiler will interpret a `///` or `/**` comment
-in the same way as if it were tagged with `@notice`.
+Tutti i tag sono opzionali. La seguente tabella illustra lo scopo di ciascun 
+tag NatSpec e spiega dove può essere usato. Come caso speciale, se nessun tag
+viene utilizzato, il compilatore Solidity interpreta i commenti `///` e `/**` come se 
+fossero annotati con `@notice`.
 
-=========== =============================================================================== =============================
-Tag                                                                                         Context
-=========== =============================================================================== =============================
-``@title``  A title that should describe the contract/interface                             contract, interface
-``@author`` The name of the author                                                          contract, interface, function
-``@notice`` Explain to an end user what this does                                           contract, interface, function
-``@dev``    Explain to a developer any extra details                                        contract, interface, function
-``@param``  Documents a parameter just like in doxygen (must be followed by parameter name) function
-``@return`` Documents the return type of a contract's function                              function
-=========== =============================================================================== =============================
+=========== ===================================================================================== =============================
+Tag                                                                                               Context
+=========== ===================================================================================== =============================
+``@title``  Titolo descrittivo del contratto/interfaccia                                          contract, interface
+``@author`` Nome dell'autore                                                                      contract, interface, function
+``@notice`` Spiegazione all'utente delle funzioni del contratto                                   contract, interface, function
+``@dev``    Spiegazione allo sviluppatore, dettagli aggiuntivi                                    contract, interface, function
+``@param``  Documenta un parametro, come in doxygen (deve essere seguito dal nome del parametro)  function
+``@return`` Documenta il tipo di ritorno di una funzione del contratto                            function
+=========== ===================================================================================== =============================
 
-If your function returns multiple values, like ``(int quotient, int remainder)``
-then use multiple ``@return`` statements in the same format as the
-``@param`` statements.
+Se la funzione restituisce più parametri di ritorno, come per esempio ``(int quotient, int remainder)``
+devono essere usati più ``@return`` statement con lo stesso formato dei ``@param`` statement.
 
 .. _header-dynamic:
 
-Dynamic expressions
--------------------
+Espressioni Dinamiche
+---------------------
 
-The Solidity compiler will pass through NatSpec documentation from your Solidity
-source code to the JSON output as described in this guide. The consumer of this
-JSON output, for example the end-user client software, may present this to the end-user directly or it may apply some pre-processing.
+Il compilatore Solidity analizza la documentazione NatSpec dal sorgente Solidity
+all'ouput in JSON come descritto in questa guida. 
+L'utilizzatore dell'ouput JSON, per sempio il software client dell'utente, 
+può presentarlo direttamente all'utente finale o 
+può applicare alcuni passi di pre-elaborazione.
 
-For example, some client software will render:
+Per esempio, alcuni client mostrano:
 
 .. code:: solidity
 
    /// @notice This function will multiply `a` by 7
 
-to the end-user as:
+all'utente come:
 
 .. code:: text
 
     This function will multiply 10 by 7
 
-if a function is being called and the input ``a`` is assigned a value of 10.
+se una funzione viene chiamata e l'input ``a`` ha valore 10.
 
-Specifying these dynamic expressions is outside the scope of the Solidity
-documentation and you may read more at
+La specifica di queste espressioni dinamiche va oltre lo scopo di 
+questa documentazione. Ulteriori informazioni possono essere trovate a
 `the radspec project <https://github.com/aragon/radspec>`__.
 
 .. _header-inheritance:
 
-Inheritance Notes
------------------
+Note per l'Ereditarietà
+-----------------------
 
-Currently it is undefined whether a contract with a function having no
-NatSpec will inherit the NatSpec of a parent contract/interface for that
-same function.
+Attualmente non è specificato se un contratto con una funzione che non ha
+NatSpec erediterà il NatSpec di un contratto / interfaccia genitore per la
+stessa funzione.
 
 .. _header-output:
 
-Documentation Output
-====================
+Output della Documentazione
+===========================
 
-When parsed by the compiler, documentation such as the one from the
-above example will produce two different JSON files. One is meant to be
-consumed by the end user as a notice when a function is executed and the
-other to be used by the developer.
+Quando analizzata dal compilatore, la documentazione come quella dell'esempio
+precedente produce due diversi file JSON. Uno è destinato ad essere
+utilizzato dall'utente finale quando viene eseguita una funzione e il secondo 
+dallo sviluppatore.
 
-If the above contract is saved as ``ex1.sol`` then you can generate the
-documentation using:
+Se il contratto mostrato sopra è salvato come ``ex1.sol``, la documentazioe 
+può essere generata utilizzando:
 
 .. code::
 
    solc --userdoc --devdoc ex1.sol
 
-And the output is below.
+Vedere sotto per l'output.
 
 .. _header-user-doc:
 
-User Documentation
-------------------
+Documentazione Utente
+---------------------
 
-The above documentation will produce the following user documentation
-JSON file as output:
+La documentazione sopra produce il seguente file JSON come output:
 
 .. code::
 
@@ -167,18 +169,17 @@ JSON file as output:
       "notice" : "You can use this contract for only the most basic simulation"
     }
 
-Note that the key by which to find the methods is the function's
-canonical signature as defined in the `Contract
-ABI <Ethereum-Contract-ABI#signature>`__ and not simply the function's
-name.
+Notare che la chiave con la quale si recupera il metoto è la signature 
+della funzione come definito in `Contract ABI <Ethereum-Contract-ABI#signature>`__ 
+e non semplicemente il nome della funzione.
 
 .. _header-developer-doc:
 
-Developer Documentation
------------------------
+Documentazione per Sviluppatori
+-------------------------------
 
-Apart from the user documentation file, a developer documentation JSON
-file should also be produced and should look like this:
+Oltre al file di documentazione per gli utenti, viene prodotto anche un
+file JSON come documentazione per gli sviluppatori simile a questo:
 
 .. code::
 
