@@ -31,7 +31,7 @@ Integrazioni con Solidity
         Solidity linter che fornisce guide linea e best practice per la verifica di smart contract.
 
     * `Solidity IDE <https://github.com/System-Glitch/Solidity-IDE>`_
-        Browser-based IDE con compilatore intgrato e supporto per Ganache e local file system.
+        Browser-based IDE con compilatore integrato e supporto per Ganache e local file system.
 
     * `Solium <https://github.com/duaraghav8/Solium/>`_
         Linter per identificare e sistemare problemi di stile e di sicurezza in Solidity.
@@ -116,7 +116,7 @@ Strumenti per Solidity
     Script per generare interfacce per contratti partendo dall'ABI di uno smart contract.
 
 * `Securify <https://securify.ch/>`_
-    Static analyser completamente automatizzato ed accessibile online per smart contracts, che fornisce security report basati su vulnerability patterns.
+    Static analyser completamente automatizzato ed accessibile online per smart contract, che fornisce security report basati su vulnerability patterns.
 
 * `Sūrya <https://github.com/ConsenSys/surya/>`_
     Strumento che offre diverse informazioni riguardo la struttura di un contratto.
