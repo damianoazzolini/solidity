@@ -6,12 +6,12 @@
 Contratti
 ##########
 
-I contratti in Solidity sono simili a classi in linguaggi orientati agli oggetti. 
+I contratti in Solidity sono simili a classi scritte con linguaggi orientati agli oggetti. 
 Essi contengono dati persistenti in variabili di stato e funzioni che possono 
-modificare le variabili. La chiamata ad una funzione su un altro contratto (istanza)
+modificare queste variabili. La chiamata ad una funzione su un altro contratto (istanza)
 effettua una chiamata di funzione EVM e quindi effettua un cambio di contesto.
 In questo modo le variabili di stato diventano inaccessibili. 
-Un contratto e le sue funzioni devono essere chiamati affinché succeda qualcosa.
+Un contratto e le sue funzioni devono essere chiamati affinché accada qualcosa.
 In Ethereum non esiste il concetto di "cron" per chiamare automaticamente una 
 funzione a seguito di un particolare evento.
 
