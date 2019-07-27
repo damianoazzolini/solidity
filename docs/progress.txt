@@ -1,9 +1,9 @@
 Elenco pagine tradotte:
 - Yul.rst (quasi completamente, da controllare)
-- index.rst (tradotto, manca spellcheck)
-- bugs.rst (tradotto, manca spellcheck)
-- contracts.rst (tradotto, manca spellcheck)
-- lll.rst (tradotto, manca spellcheck)
-- metadata.rst (tradotto, manca spellcheck)
-- natspec-format.rst (tradotto, manca spellcheck)
-- resources.rst (tradotto, manca spellcheck)
+- index.rst
+- bugs.rst
+- contracts.rst
+- lll.rst
+- metadata.rst
+- natspec-format.rst
+- resources.rst

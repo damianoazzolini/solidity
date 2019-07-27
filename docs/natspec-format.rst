@@ -17,8 +17,8 @@ interagiscono con il contratto (per esempio durante la firma di una transazione)
 Si raccomanda che i contratti Solidity siano interamente annotati utilizzando NatSpec per
 tutte le interfacce pubbliche (ogni dato nell'ABI).
 
-NatSpec include specifiche per la formattazione dei commenti dello smart contract, 
-e che sono interpretati dal compilatore Solidity. Sotto viene dettagliato
+NatSpec include specifiche per la formattazione dei commenti dello smart contract 
+che sono interpretati dal compilatore Solidity. Sotto viene dettagliato
 l'output del compilatore Solidity che estrae questi commenti e li trasforma in un
 formato machine-readable.
 
@@ -30,7 +30,7 @@ Esempio di Documentazione
 La documentazione è inserita al di sopra di ogni ``class``, ``interface`` e
 ``function`` utilizzando il formato doxygen.
 
--  Per Solidity si può utilizzare ``///`` per un commento singola line o multi-line
+-  Per Solidity si può utilizzare ``///`` per un commento singola linea o multi-line
    oppure ``/**`` terminato da ``*/``.
 
 -  Per Vyper, si utilizza ``"""`` indentato. Vedere la `documentazione Vyper
@@ -89,7 +89,7 @@ Tag                                                                             
 ``@return`` Documenta il tipo di ritorno di una funzione del contratto                            function
 =========== ===================================================================================== =============================
 
-Se la funzione restituisce più parametri di ritorno, come per esempio ``(int quotient, int remainder)``
+Se la funzione ha più parametri di ritorno, come per esempio ``(int quotient, int remainder)``
 devono essere usati più ``@return`` statement con lo stesso formato dei ``@param`` statement.
 
 .. _header-dynamic:
@@ -169,7 +169,7 @@ La documentazione sopra produce il seguente file JSON come output:
       "notice" : "You can use this contract for only the most basic simulation"
     }
 
-Notare che la chiave con la quale si recupera il metoto è la signature 
+Notare che la chiave con la quale si recupera il metodo è la signature 
 della funzione come definito in `Contract ABI <Ethereum-Contract-ABI#signature>`__ 
 e non semplicemente il nome della funzione.
 

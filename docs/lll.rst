@@ -8,7 +8,7 @@ LLL è un linguaggio di basso livello per EVM con una sintassi basata su s-expre
 
 Il repository Solidity contiene un compilatore LLL, che condivide il sottosistema 
 assembler con Solidity.
-Tuttavi, non vengono fatti più miglioramenti.
+Tuttavia, non vengono rilasciati più miglioramenti.
 
 LLL non viene compilato se non specificamente richiesto con:
 
@@ -19,4 +19,4 @@ LLL non viene compilato se non specificamente richiesto con:
 
 .. warning::
 
-    Il codice sorgente dil LLL è deprecato e sarà rimosso dal repository Solidity in futuro.
+    Il codice sorgente di LLL è deprecato e sarà rimosso dal repository Solidity in futuro.

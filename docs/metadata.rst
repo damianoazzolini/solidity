@@ -5,8 +5,8 @@ Contract Metadata
 .. index:: metadata, contract verification
 
 Il compilatore di Solidity genera automaticamente un file JSON che contiene 
-i metadati del contratto che rappresentano informazioni sul contratto corrente. 
-Questo file può essere usato per interrogare la versione del compilatore, 
+i metadati del contratto che rappresentano informazioni sul contratto stesso. 
+Questo file può essere usato per scoprire la versione del compilatore, 
 i sorgeti utilizzati, l'ABI e la documentazione NatSpec
 per interagire in modo più sicuro con il contratto e verificarne il codice.
 
@@ -21,9 +21,9 @@ comando `` solc --metadata`` che genera un file chiamato "ContractName_meta.json
 Questo file contiene i riferimenti Swarm al codice sorgente, quindi bisogna caricare 
 tutti i file sorgente e il file contenente i metadati.
 
-Il file coi metadati ha il seguente formato. L'esempio seguente è presentato in a
+Il file coi metadati ha il seguente formato. L'esempio è presentato in a
 modo human-readable. I metadati correttamente formattati dovrebbero usare le
-virgolette correttamente, ridurre gli spazi al minimo e ordinare le chiavi di 
+virgolette in maniera corretta, ridurre gli spazi al minimo ed ordinare le chiavi di 
 tutti gli oggetti per arrivare ad una formattazione unica. 
 I commenti non sono consentiti e vengono usati qui solo per scopi esplicativi.
 
@@ -63,7 +63,7 @@ I commenti non sono consentiti e vengono usati qui solo per scopi esplicativi.
       // Richiesto: impostazioni del compilatore
       settings:
       {
-        // Richiesto per Solidity: lista ordinata di remappings
+        // Richiesto per Solidity: lista ordinata di remapping
         remappings: [ ":g=/dir" ],
         // Opzionale: impostazioni di ottimizzazione. Il campo "enabled" e "runs" sono deprecati
         // e sono mantenuti solo per retrocompatibilità.
@@ -84,7 +84,7 @@ I commenti non sono consentiti e vengono usati qui solo per scopi esplicativi.
           }
         },
         metadata: {
-          // Riflette le impostazioni di input json, defaults a false
+          // Riflette le impostazioni di input json, default a false
           useLiteralContent: true
         }
         // Richiesto per Solidity: file e nome del contratto o libreria per il quale
@@ -136,19 +136,19 @@ alla fine del bytecode ::
     0x64 's' 'o' 'l' 'c' 0x43 <3 byte version encoding>
     0x00 0x32
 
-Quindi, per recuperare i dati, è possibile controllare la fine del bytecode
-e cercare, cercare il pattern precedente ed utilizzare l'hash Swarm 
+Quindi, per recuperare i dati, è possibile controllare la fine del bytecode, 
+cercare il pattern precedente ed utilizzare l'hash Swarm 
 per recuperare il file.
 
 Mentre le release di solc usano una codifica a 3 byte della versione come mostrato
-sopra (un byte ciascuno per il numero di versione maggiore, minore e patch), 
+sopra (un byte ciascuno per il numero di versione major, minor e patch), 
 le prerelease utilizzano invece una stringa di versione completa che include l'hash 
 del commit e la data di compilazione.
 
 .. note::
   La mappatura CBOR può contenere anche altre chiavi, quindi è meglio
   decodificare completamente i dati invece di fare affidamento sul fatto che 
-  inizi con `` 0xa265``.
+  inizi con ``0xa265``.
   Ad esempio, se vengono utilizzate alcune funzionalità sperimentali 
   che influiscono sulla generazione del codice, la mappatura conterrà 
   anche `` "experimental": true``
@@ -165,8 +165,8 @@ Utilizzo per Automatic Interface Generation e NatSpec
 =====================================================
 
 I metadati vengono utilizzati nel modo seguente: un componente che desidera interagire
-con un contratto (ad esempio Mist o qualsiasi portafoglio) recupera il codice del contratto, 
-dal quale recupera l'hash Swarm di un file che viene quindi recuperato.
+con un contratto (ad esempio Mist od un qualsiasi wallet) recupera il codice del contratto, 
+dal quale recupera l'hash Swarm del file che viene quindi recuperato.
 Quel file è decodificato da JSON in una struttura come sopra.
 
 Il componente quindi usa l'ABI per generare automaticamente una rudimentale interfaccia
