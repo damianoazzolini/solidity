@@ -6,17 +6,16 @@ Solidity
     :alt: Solidity logo
     :align: center
 
-Solidity è un linguaggio di programmazione ad alto livello per implementare smart contract.
-Uno smart contract è un programma che gestisce il comportamento degli account all'interno 
-di Ethereum.
+Solidity è un linguaggio di programmazione object oriented ad alto livello per implementare smart contract.
+Uno smart contract è un programma che gestisce il comportamento degli account in Ethereum.
 
-Solidity è stato influenzato da diversi linguaggi di programmazione come C++, Python e
+Solidity è stato influenzato da diversi linguaggi di programmazione tra cui C++, Python e
 JavaScript ed è stato sviluppato per essere compilato per la Ethereum Virtual Machine (EVM).
 
 Solidity è un linguaggio con tipizzazione statica, supporta l'ereditarietà, librerie ed 
 anche la definizione di tipi di dato user-defined.
 
-Utilizando Solidity, si possono sviluppare contratti per la gestione di diverse
+Utilizzando Solidity, si possono sviluppare contratti per la gestione di diverse
 situazioni come votazioni, crowdfunding, aste e wallet multi-signature.
 
 Nello sviluppo di uno smart contract si dovrebbe utilizzare sempre l'ultima versione di 
@@ -45,14 +44,14 @@ e i dettagli della :ref:`Ethereum Virtual Machine <the-ethereum-virtual-machine>
   È possibile provare gli esempi di codice nel browser utilizzando 
   `Remix IDE <https://remix.ethereum.org>`_. Remix è un IDE online
   che permette la scrittura di smart contract in Solidity e la loro 
-  esecuzione. Il caricamento della pagina può richiedere tempo.
+  esecuzione. Il caricamento della pagina web può richiedere tempo.
   
 .. warning::
-  Poiché il software è scritto da umani, questo può presentare dei bachi.
+  Poiché il software è scritto da umani, questo può presentare bachi.
   È consigliato seguire le guide linea per lo sviluppo di software durante
   la scrittura di uno smart contract. Queste includono testing, auditing e 
   dimostrazioni di correttezza. Gli utenti di uno smart contract sono solitamente
-  più fiduciosi nel codice rispetto ai loro scrittori e blockchain e smart contract
+  più fiduciosi del codice rispetto ai loro scrittori e blockchain e smart contract
   possono presentare diversi problemi. Si consiglia quindi la lettura della sezione
   :ref:`considerazioni di sicurezza <security_considerations>`.
 
