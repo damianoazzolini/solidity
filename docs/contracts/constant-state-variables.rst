@@ -1,28 +1,33 @@
 .. index:: ! constant
 
-************************
-Constant State Variables
-************************
+***************************
+Variabili di Stato Costanti
+***************************
 
-State variables can be declared as ``constant``. In this case, they have to be
-assigned from an expression which is a constant at compile time. Any expression
-that accesses storage, blockchain data (e.g. ``now``, ``address(this).balance`` or
-``block.number``) or
-execution data (``msg.value`` or ``gasleft()``) or makes calls to external contracts is disallowed. Expressions
-that might have a side-effect on memory allocation are allowed, but those that
-might have a side-effect on other memory objects are not. The built-in functions
-``keccak256``, ``sha256``, ``ripemd160``, ``ecrecover``, ``addmod`` and ``mulmod``
-are allowed (even though, with the exception of ``keccak256``, they do call external contracts).
+Le variabili di stato possono essere dichiarate come `` costanti ''. 
+In questo caso, devono essere definite tali da un'espressione che 
+è costante al momento della compilazione. 
+Qualsiasi espressione
+che accede alla memoria o ai dati della blockchain (ad es. `` now``, 
+`` address (this) .balance`` o `` block.number``) o
+ai dati di esecuzione (`` msg.value`` o `` gasleft () ``) 
+o effettua chiamate a contratti esterni non è consentita. 
+Espressioni che potrebbero avere un effetto collaterale sull'allocazione 
+della memoria sono consentite, ma quelle che potrebbero avere un effetto 
+collaterale sulla memoria di altri oggetti non lo sono. 
+Le funzioni built-in ``keccak256``, ``sha256``, ``ripemd160``, ``ecrecover``, ``addmod`` 
+e ``mulmod`` sono consentite (anche se, ad eccezione di ``keccak256``, chiamano contratti esterni).
 
-The reason behind allowing side-effects on the memory allocator is that it
-should be possible to construct complex objects like e.g. lookup-tables.
-This feature is not yet fully usable.
+Il motivo dietro la concessione di effetti collaterali sull'allocazione di memoria è che
+dovrebbe essere possibile costruire oggetti complessi come ad esempio lookup-tables.
+Questa funzione non è ancora completamente utilizzabile.
 
-The compiler does not reserve a storage slot for these variables, and every occurrence is
-replaced by the respective constant expression (which might be computed to a single value by the optimizer).
+Il compilatore non riserva uno slot di memoria per queste variabili e ogni occorrenza è
+sostituita dalla rispettiva espressione costante (che potrebbe essere calcolata su un 
+singolo valore dall'ottimizzatore).
 
-Not all types for constants are implemented at this time. The only supported types are
-value types and strings.
+Al momento non tutti i tipi di costanti sono implementati. Gli unici tipi supportati sono
+tipi di valore e stringhe.
 
 ::
 

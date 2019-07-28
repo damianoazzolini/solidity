@@ -3,10 +3,12 @@
 .. _abstract-contract:
 
 ******************
-Abstract Contracts
+Contratti astratti
 ******************
 
-Contracts are marked as abstract when at least one of their functions lacks an implementation as in the following example (note that the function declaration header is terminated by ``;``)::
+I contratti sono contrassegnati come astratti quando almeno una 
+delle loro funzioni non ha un'implementazione, come nell'esempio 
+seguente (si noti che l'intestazione della dichiarazione di funzione è terminata da ``;``): ::
 
     pragma solidity >=0.4.0 <0.7.0;
 
@@ -14,7 +16,8 @@ Contracts are marked as abstract when at least one of their functions lacks an i
         function utterance() public returns (bytes32);
     }
 
-Such contracts cannot be compiled (even if they contain implemented functions alongside non-implemented functions), but they can be used as base contracts::
+Tali contratti non possono essere compilati (anche se contengono funzioni implementate insieme 
+a funzioni non implementate), ma possono essere utilizzati come contratti di base: ::
 
     pragma solidity >=0.4.0 <0.7.0;
 
@@ -26,18 +29,23 @@ Such contracts cannot be compiled (even if they contain implemented functions al
         function utterance() public returns (bytes32) { return "miaow"; }
     }
 
-If a contract inherits from an abstract contract and does not implement all non-implemented functions by overriding, it will itself be abstract.
+Se un contratto eredita da un contratto astratto e non implementa tutte le funzioni 
+non implementate mediante overriding, sarà esso stesso astratto.
 
-Note that a function without implementation is different from a :ref:`Function Type <function_types>` even though their syntax looks very similar.
+Si noti che una funzione senza implementazione è diversa da un 
+:ref:`Function Type <function_types>` anche se la loro sintassi risulta simile.
 
-Example of function without implementation (a function declaration)::
+Esempio di funzione senza implementazione (dichiarazione di funzione)::
 
     function foo(address) external returns (address);
 
-Example of a Function Type (a variable declaration, where the variable is of type ``function``)::
+Esempio di Function Type (dichiarazione di variabile dove la variabile è di tipo ``function``)::
 
     function(address) external returns (address) foo;
 
-Abstract contracts decouple the definition of a contract from its implementation providing better extensibility and self-documentation and
-facilitating patterns like the `Template method <https://en.wikipedia.org/wiki/Template_method_pattern>`_ and removing code duplication.
-Abstract contracts are useful in the same way that defining methods in an interface is useful. It is a way for the designer of the abstract contract to say "any child of mine must implement this method".
+I contratti astratti disaccoppiano la definizione di un contratto dalla sua implementazione
+fornendo così una migliore estensibilità e documentazione, facilitando pattern come 
+`Template method <https://en.wikipedia.org/wiki/Template_method_pattern>`_ 
+e rimuovendo duplicati di codice.
+I contratti astratti sono utili allo stesso modo in cui è utile definire i metodi in un'interfaccia. 
+È un modo per il progettista del contratto astratto di dire "ogni mio figlio deve implementare questo metodo".

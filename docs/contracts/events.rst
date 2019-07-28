@@ -3,41 +3,49 @@
 .. _events:
 
 ******
-Events
+Eventi
 ******
 
-Solidity events give an abstraction on top of the EVM's logging functionality.
-Applications can subscribe and listen to these events through the RPC interface of an Ethereum client.
+Gli eventi Solidity offrono un'astrazione in aggiunta alla funzionalità di logging di EVM. 
+Le applicazioni possono iscriversi ed ascoltare questi eventi tramite una interfaccia 
+RPC di un client Ethereum.
 
-Events are inheritable members of contracts. When you call them, they cause the
-arguments to be stored in the transaction's log - a special data structure
-in the blockchain. These logs are associated with the address of the contract,
-are incorporated into the blockchain, and stay there as long as a block is
-accessible (forever as of the Frontier and Homestead releases, but this might
-change with Serenity). The Log and its event data is not accessible from within
-contracts (not even from the contract that created them).
+Gli eventi sono membri ereditabili di un contratto.
 
-It is possible to request a simple payment verification (SPV) for logs, so if
-an external entity supplies a contract with such a verification, it can check
-that the log actually exists inside the blockchain. You have to supply block headers
-because the contract can only see the last 256 block hashes.
+Quando li chiami, causano l'archiviazione degli argomenti nel registro delle transazioni 
+(transaction's log), una struttura di dati speciale nella blockchain.
+Questi registri sono associati all'indirizzo del contratto,
+sono incorporati nella blockchain e rimangono lì fino a quando è un blocco
+accessibile (per sempre dalle versioni Frontier e Homestead, ma questo potrebbe 
+cambiare con Serenity). 
+Il registro e i relativi dati dell'evento non sono accessibili dall'interno
+contratti (nemmeno dal contratto che li ha creati).
 
-You can add the attribute ``indexed`` to up to three parameters which adds them
-to a special data structure known as :ref:`"topics" <abi_events>` instead of
-the data part of the log. If you use arrays (including ``string`` and ``bytes``)
-as indexed arguments, its Keccak-256 hash is stored as a topic instead, this is
-because a topic can only hold a single word (32 bytes).
+È possibile richiedere una semplice verifica del pagamento (SPV) per i log, 
+quindi se un'entità esterna fornisce ad un contratto tale verifica, 
+può verificare che il log esista effettivamente all'interno della blockchain. 
+Devi essere fornite le intestazioni di blocco (block header) perché il contratto 
+può vedere solo gli ultimi 256 hash di un blocco.
 
-All parameters without the ``indexed`` attribute are :ref:`ABI-encoded <ABI>`
-into the data part of the log.
+Può essere inoltre aggiunto l'attributo ``indexed`` che supporta
+fino a tre parametri, che aggiunge le informazioni
+in una struttura dati speciale nota come :ref:`"topics" <abi_events>` 
+invece che nella parte dati del log. 
+Se vengono utlizzati array (compresi ``string`` e ``bytes``)
+come indexed arguments, il suo Keccak-256 hash è salvato come topic, 
+questo perché un topic può contenere al solo una sigola word (32 byte).
 
-Topics allow you to search for events, for example when filtering a sequence of
-blocks for certain events. You can also filter events by the address of the
-contract that emitted the event.
+Tutti i parametri senza l'attributo ``indexed`` sono :ref:`ABI-encoded <ABI>`
+all'interno della parte dati del log.
 
-For example, the code below uses the web3.js ``subscribe("logs")``
-`method <https://web3js.readthedocs.io/en/1.0/web3-eth-subscribe.html#subscribe-logs>`_ to filter
-logs that match a topic with a certain address value:
+
+Gli argomenti consentono di cercare eventi, ad esempio quando si filtra una 
+sequenza di blocchi per determinati eventi. Puoi anche filtrare gli eventi in 
+base all'indirizzo del contratto che ha emesso l'evento.
+
+Per esempio, il codice sottostante usa il web3.js ``subscribe("logs")``
+`method <https://web3js.readthedocs.io/en/1.0/web3-eth-subscribe.html#subscribe-logs>`_ 
+per filtrare log che riguardano un argomento con un certo indirizzo:
 
 .. code-block:: javascript
 
@@ -57,11 +65,11 @@ logs that match a topic with a certain address value:
     });
 
 
-The hash of the signature of the event is one of the topics, except if you
-declared the event with the ``anonymous`` specifier. This means that it is
-not possible to filter for specific anonymous events by name, you can
-only filter by the contract address. The advantage of anonymous events
-is that they are cheaper to deploy and call.
+L'hash della firma dell'evento è uno degli argomenti, 
+tranne l'evento è dichiarato con lo specificatore ``anonymous``. 
+Ciò significa che non è possibile filtrare eventi anonimi per nome, ma
+è possibile filtrare solo per l'indirizzo del contratto.
+Il vantaggio di eventi anonimi è che sono più economici da caricare e chiamare.
 
 ::
 
@@ -75,41 +83,41 @@ is that they are cheaper to deploy and call.
         );
 
         function deposit(bytes32 _id) public payable {
-            // Events are emitted using `emit`, followed by
-            // the name of the event and the arguments
-            // (if any) in parentheses. Any such invocation
-            // (even deeply nested) can be detected from
-            // the JavaScript API by filtering for `Deposit`.
+            // Gli eventi vengono emessi con la parola chiave `emit`, seguita dal nome
+            // dell'evento e dagli argomenti tra parentesi (se ci sono).
+            // Ogni invocazione di questo tipo
+            // (anche innestata) viene rilevata dalle 
+            // API JavaScript filtrando `Deposit`.
             emit Deposit(msg.sender, _id, msg.value);
         }
     }
 
-The use in the JavaScript API is as follows:
+L'utilizzo con le JavaScript API è il seguente:
 
 ::
 
-    var abi = /* abi as generated by the compiler */;
+    var abi = /* Abi come generato dal compilatore */;
     var ClientReceipt = web3.eth.contract(abi);
     var clientReceipt = ClientReceipt.at("0x1234...ab67" /* address */);
 
     var event = clientReceipt.Deposit();
 
-    // watch for changes
+    // Controllo di eventiali cambiamenti
     event.watch(function(error, result){
-        // result contains non-indexed arguments and topics
-        // given to the `Deposit` call.
+        // Il risultato contiene argomenti non indicizzati e topics
+        // forniti alla chiamata `Deposit`.
         if (!error)
             console.log(result);
     });
 
 
-    // Or pass a callback to start watching immediately
+    // Callback per iniziare il controllo immediatamente
     var event = clientReceipt.Deposit(function(error, result) {
         if (!error)
             console.log(result);
     });
 
-The output of the above looks like the following (trimmed):
+L'output del comando precedente è il seguente (troncato):
 
 .. code-block:: json
 
@@ -127,14 +135,14 @@ The output of the above looks like the following (trimmed):
 
 .. index:: ! log
 
-Low-Level Interface to Logs
-===========================
+Interfaccia di Basso Livello ai Log
+===================================
 
-It is also possible to access the low-level interface to the logging
-mechanism via the functions ``log0``, ``log1``, ``log2``, ``log3`` and ``log4``.
-``logi`` takes ``i + 1`` parameter of type ``bytes32``, where the first
-argument will be used for the data part of the log and the others
-as topics. The event call above can be performed in the same way as
+È anche possibile accedere all'interfaccia di basso livello del meccanismo
+di logging attraverso le funzioni ``log0``, ``log1``, ``log2``, ``log3`` e ``log4``.
+``logi`` accetta ``i + 1`` parametri di tipo ``bytes32``, dove il primo argomento
+viene utilizzato per la parte di dati del log ed i rimanenti come topic. 
+La chiamata all'evento sopra può essere eseguita allo stesso modo con
 
 ::
 
@@ -152,12 +160,12 @@ as topics. The event call above can be performed in the same way as
         }
     }
 
-where the long hexadecimal number is equal to
-``keccak256("Deposit(address,bytes32,uint256)")``, the signature of the event.
+dove il numero esadecimale è uguale a 
+``keccak256("Deposit(address,bytes32,uint256)")``, la signature dell'evento.
 
-Additional Resources for Understanding Events
+Risorse Aggiuntive per Approfondire gli Eventi
 ==============================================
 
-- `Javascript documentation <https://github.com/ethereum/wiki/wiki/JavaScript-API#contract-events>`_
-- `Example usage of events <https://github.com/debris/smart-exchange/blob/master/lib/contracts/SmartExchange.sol>`_
-- `How to access them in js <https://github.com/debris/smart-exchange/blob/master/lib/exchange_transactions.js>`_
+- `Documentazione Javascript <https://github.com/ethereum/wiki/wiki/JavaScript-API#contract-events>`_
+- `Esempio di utilizzo di eventi <https://github.com/debris/smart-exchange/blob/master/lib/contracts/SmartExchange.sol>`_
+- `COme accedere agli eventi utilizzando js <https://github.com/debris/smart-exchange/blob/master/lib/exchange_transactions.js>`_

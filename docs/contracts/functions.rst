@@ -2,26 +2,27 @@
 
 .. _functions:
 
-*********
-Functions
-*********
+********
+Funzioni
+********
 
 .. _function-parameters-return-variables:
 
-Function Parameters and Return Variables
-========================================
+Parametri di Funzioni e Valori di Ritorno
+=========================================
 
-As in JavaScript, functions may take parameters as input. Unlike in JavaScript
-and C, functions may also return an arbitrary number of values as output.
+Come in JavaScript, le funzioni possono ricevere parametri in input. 
+A differenza di JavaScript e C, le funzioni possono restituire un
+numero arbitrario di valori.
 
-Function Parameters
--------------------
+Parametri delle Funzioni
+------------------------
 
-Function parameters are declared the same way as variables, and the name of
-unused parameters can be omitted.
+I parametri delle funzioni sono dichiarati allo stesso modo delle variabili, 
+ed il nome dei parametri non utilizzati può essere omesso.
 
-For example, if you want your contract to accept one kind of external call
-with two integers, you would use something like::
+Per esempio, se il contratto accetta chiamate esterne con due interi, si può utilizzare
+qualcosa del tipo::
 
     pragma solidity >=0.4.16 <0.7.0;
 
@@ -32,28 +33,29 @@ with two integers, you would use something like::
         }
     }
 
-Function parameters can be used as any other local variable and they can also be assigned to.
+I parametri delle funzioni possono essere usati come una qualsiasi altra variabile
+locale e possono essere anche assegnati ad un valore.
 
 .. note::
 
-  An :ref:`external function<external-function-calls>` cannot accept a
-  multi-dimensional array as an input
-  parameter. This functionality is possible if you enable the new
-  experimental ``ABIEncoderV2`` feature by adding ``pragma experimental ABIEncoderV2;`` to your source file.
+  Una :ref:`external function<external-function-calls>` non può accettare array 
+  multi dimensionali come parametro di input. 
+  Questa funzionalità è disponibile se abilitata ``ABIEncoderV2`` attraverso l'inserimento 
+  della riga ``pragma experimental ABIEncoderV2;`` nel codice sorgente.
 
-  An :ref:`internal function<external-function-calls>` can accept a
-  multi-dimensional array without enabling the feature.
+  Una :ref:`internal function<external-function-calls>` può accettare una array multidimensionale
+  senza attivare la funzionalità precedente..
 
 .. index:: return array, return string, array, string, array of strings, dynamic array, variably sized array, return struct, struct
 
-Return Variables
-----------------
+Variabili di Ritorno
+--------------------
 
-Function return variables are declared with the same syntax after the
-``returns`` keyword.
+Le variabili di ritorno di una funzione sono dichiarate con la stessa sintassi dopo
+la keyword ``returns``.
 
-For example, suppose you want to return two results: the sum and the product of
-two integers passed as function parameters, then you use something like::
+Per esempio, si supponga che vogliano essere restituiti due valori: la somma e il 
+prodotto di due interi passati come parametri alla funzione. Si utilizza::
 
     pragma solidity >=0.4.16 <0.7.0;
 
@@ -68,14 +70,15 @@ two integers passed as function parameters, then you use something like::
         }
     }
 
-The names of return variables can be omitted.
-Return variables can be used as any other local variable and they
-are initialized with their :ref:`default value <default-value>` and have that value unless explicitly set.
+I nomi delle variabili di ritorno possono essere omessi.
+Le variabili di ritorno possono essere usate come qualsiasi altra variabile locale
+e sono inizializzate con il loro :ref:`default value <default-value>` ed 
+hanno quel valore se non impostato esplicitamente.
 
-You can either explicitly assign to return variables and
-then leave the function using ``return;``,
-or you can provide return values
-(either a single or :ref:`multiple ones<multi-return>`) directly with the ``return``
+Si possono anche assegnare esplicitamente i valori di ritorno e successivamente
+abbandonare la funzione utilizzando ``return;``,
+o si possono direttamente fornire i valori di ritorno 
+(sia uno solo che :ref:`più di uno<multi-return>`) direttamente con il ``return``
 statement::
 
     pragma solidity >=0.4.16 <0.7.0;
@@ -90,53 +93,58 @@ statement::
         }
     }
 
-This form is equivalent to first assigning values to the
-return variables and then using ``return;`` to leave the function.
+Questo formato è equivalente ad assegnare prima i valori alle variabili
+di ritorno e poi utilizzare ``return;`` per abbandonare la funzione.
 
 .. note::
-    You cannot return some types from non-internal functions, notably
-    multi-dimensional dynamic arrays and structs. If you enable the
-    new experimental ``ABIEncoderV2`` feature by adding ``pragma experimental
-    ABIEncoderV2;`` to your source file then more types are available, but
-    ``mapping`` types are still limited to inside a single contract and you
-    cannot transfer them.
+    Non si possono restituire alcuni tipi da funzioni non internal,
+    in particolare, array dinamici multidimensionali e strutture.
+    Se la feature ``ABIEncoderV2`` è abilitata con ``pragma experimental
+    ABIEncoderV2;`` nel codice sorgente, sono disponibili altri tipi di dati, 
+    ma i tipi ``mapping`` sono ancora limitati ad un contratto singolo e non
+    possono essere trasferiti.
 
 .. _multi-return:
 
-Returning Multiple Values
--------------------------
+Restituire Molteplici Valori
+----------------------------
 
-When a function has multiple return types, the statement ``return (v0, v1, ..., vn)`` can be used to return multiple values.
-The number of components must be the same as the number of return types.
+Quando una funzione ha più valori di ritorno, lo statement 
+``return (v0, v1, ..., vn)`` può essere utilizzato per restituire 
+più valori. Il numero di componenti deve essere lo stesso del numero di
+valori di ritorno.
 
 .. index:: ! view function, function;view
 
 .. _view-functions:
 
-View Functions
-==============
+Funzioni View
+=============
 
-Functions can be declared ``view`` in which case they promise not to modify the state.
+Le funzioni possono essere dichiarate ``view``, in questo caso 
+assicurano di non modificare lo stato.
 
 .. note::
-  If the compiler's EVM target is Byzantium or newer (default) the opcode
-  ``STATICCALL`` is used for ``view`` functions which enforces the state
-  to stay unmodified as part of the EVM execution. For library ``view`` functions
-  ``DELEGATECALL`` is used, because there is no combined ``DELEGATECALL`` and ``STATICCALL``.
-  This means library ``view`` functions do not have run-time checks that prevent state
-  modifications. This should not impact security negatively because library code is
-  usually known at compile-time and the static checker performs compile-time checks.
+  Se il target della compilazione è la EVM Byzantium o nuova (default) l'opcode
+  ``STATICCALL`` viene utilizzato per le funzioni ``view`` che forzano lo stato
+  a rimanere immutato durante l'esecuzione EVM. Per le funzioni ``view`` di libreria,
+  viene utilizzato ``DELEGATECALL`` perché non esiste una combinazione di ``DELEGATECALL`` e ``STATICCALL``.
+  Questo significa che le funzioni di libreria ``view`` non hanno controllo 
+  run-time che evitano la modifica dello stato. 
+  Questo fatto non dovrebbe impattare negativamente sulla sicurezza perché il codice 
+  delle librerie solitamente è noto a compile-time e il controllo statico 
+  effettua controllo a compile-time.
 
-The following statements are considered modifying the state:
+I seguenti statement sono considerati modificatori dello stato:
 
-#. Writing to state variables.
-#. :ref:`Emitting events <events>`.
-#. :ref:`Creating other contracts <creating-contracts>`.
-#. Using ``selfdestruct``.
-#. Sending Ether via calls.
-#. Calling any function not marked ``view`` or ``pure``.
-#. Using low-level calls.
-#. Using inline assembly that contains certain opcodes.
+#. Scrittura su variabili di stato.
+#. :ref:`Emissione di eventi <events>`.
+#. :ref:`Creazione di altri contratti <creating-contracts>`.
+#. Utilizzo di ``selfdestruct``.
+#. Invio di Ether attraverso calls.
+#. Chiamata ad una funzione non definita ``view`` o ``pure``.
+#. Utilizzo di chiamate a basso livello.
+#. Utilizzo di inline assembly con alcuni opcode.
 
 ::
 
@@ -149,25 +157,25 @@ The following statements are considered modifying the state:
     }
 
 .. note::
-  ``constant`` on functions used to be an alias to ``view``, but this was dropped in version 0.5.0.
+  ``constant`` nelle funzioni è utilizzato come alias per ``view``, ma nella versione 0.5.0 è stato abbandonato.
 
 .. note::
-  Getter methods are automatically marked ``view``.
+  I metodi getter sono marcati automaticamente ``view``.
 
 .. note::
-  Prior to version 0.5.0, the compiler did not use the ``STATICCALL`` opcode
-  for ``view`` functions.
-  This enabled state modifications in ``view`` functions through the use of
-  invalid explicit type conversions.
-  By using  ``STATICCALL`` for ``view`` functions, modifications to the
-  state are prevented on the level of the EVM.
+  Prima della versione 0.5.0, il compilatore non usa l'opcode ``STATICCALL``
+  per le funzioni ``view``.
+  Questo abilita la modifica dello stato nelle funzioni ``view`` attraverso l'uso 
+  di conversioni di tipo non valide.
+  Utilizzando ``STATICCALL`` per funzioni ``view``, le modifiche allo stato 
+  sono bloccate a livello EVM.
 
 .. index:: ! pure function, function;pure
 
 .. _pure-functions:
 
-Pure Functions
-==============
+Pure Function
+=============
 
 Functions can be declared ``pure`` in which case they promise not to read from or modify the state.
 

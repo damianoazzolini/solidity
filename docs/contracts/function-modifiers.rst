@@ -2,13 +2,13 @@
 
 .. _modifiers:
 
-******************
-Function Modifiers
-******************
+************************
+Modificatori di Funzioni
+************************
 
-Modifiers can be used to easily change the behaviour of functions.  For example,
-they can automatically check a condition prior to executing the function. Modifiers are
-inheritable properties of contracts and may be overridden by derived contracts.
+I modificatori possono essere utilizzati per modificare facilmente il comportamento delle funzioni.
+Ad esempio, possono verificare automaticamente una condizione prima di eseguire la funzione.
+I modificatori sono proprietà ereditabili dei contratti e possono essere sovrascritti da contratti derivati.
 
 ::
 
@@ -18,13 +18,12 @@ inheritable properties of contracts and may be overridden by derived contracts.
         constructor() public { owner = msg.sender; }
         address payable owner;
 
-        // This contract only defines a modifier but does not use
-        // it: it will be used in derived contracts.
-        // The function body is inserted where the special symbol
-        // `_;` in the definition of a modifier appears.
-        // This means that if the owner calls this function, the
-        // function is executed and otherwise, an exception is
-        // thrown.
+        // Questo contratto definisce un modificatore ma non lo utilizza:
+        // verrà utilizzato nei contratti derivati.
+        // Il corpo della funzione viene inserito al posto del simbolo
+        // `_;` nella definizione del modificatore.
+        // Questo significa che se il proprietario chiama questa funzione,
+        // la funzione viene eseguita altrimenti viene lanciata una eccezione.
         modifier onlyOwner {
             require(
                 msg.sender == owner,
@@ -35,17 +34,17 @@ inheritable properties of contracts and may be overridden by derived contracts.
     }
 
     contract mortal is owned {
-        // This contract inherits the `onlyOwner` modifier from
-        // `owned` and applies it to the `close` function, which
-        // causes that calls to `close` only have an effect if
-        // they are made by the stored owner.
+        // Questo contratto eredita il modificatore `onlyOwner` da
+        // `owned` e lo applica alla funzione `close`, che fa sì che
+        // una chiamata a `close` abbia effetto solamente se fatta dal
+        // proprietario.
         function close() public onlyOwner {
             selfdestruct(owner);
         }
     }
 
     contract priced {
-        // Modifiers can receive arguments:
+        // I modificatori possono avere argomenti
         modifier costs(uint price) {
             if (msg.value >= price) {
                 _;
@@ -59,9 +58,9 @@ inheritable properties of contracts and may be overridden by derived contracts.
 
         constructor(uint initialPrice) public { price = initialPrice; }
 
-        // It is important to also provide the
-        // `payable` keyword here, otherwise the function will
-        // automatically reject all Ether sent to it.
+        // è importante anche inserire la keyword
+        // `payable`, altrimenti la funzione rigetterà automaticamente
+        // automatically tutto l'Ether inviato.
         function register() public payable costs(price) {
             registeredAddresses[msg.sender] = true;
         }
@@ -83,10 +82,10 @@ inheritable properties of contracts and may be overridden by derived contracts.
             locked = false;
         }
 
-        /// This function is protected by a mutex, which means that
-        /// reentrant calls from within `msg.sender.call` cannot call `f` again.
-        /// The `return 7` statement assigns 7 to the return value but still
-        /// executes the statement `locked = false` in the modifier.
+        /// Questa funzione è protetta da un mutex, il che significa che 
+        /// chiamate reentranti a `msg.sender.call` non possono chiamare `f` nuovamente.
+        /// Lo statement `return 7` assegna il valore 7 al valore di ritorno ma
+        /// esegue comunque lo statement `locked = false` nel modificatore.
         function f() public noReentrancy returns (uint) {
             (bool success,) = msg.sender.call("");
             require(success);
@@ -94,18 +93,20 @@ inheritable properties of contracts and may be overridden by derived contracts.
         }
     }
 
-Multiple modifiers are applied to a function by specifying them in a
-whitespace-separated list and are evaluated in the order presented.
+
+Più modificatori vengono applicati a una funzione specificandoli in un elenco 
+separato da spazi bianchi e vengono valutati nell'ordine presentato.
 
 .. warning::
-    In an earlier version of Solidity, ``return`` statements in functions
-    having modifiers behaved differently.
+    Nelle versioni iniziali di Solidity, i ``return`` statement nelle funzioni
+    possono far agire i modificatori in maniera diversa.
 
-Explicit returns from a modifier or function body only leave the current
-modifier or function body. Return variables are assigned and
-control flow continues after the "_" in the preceding modifier.
+I return espliciti da un modificatore o da un corpo di funzione lasciano solo il 
+modificatore o il corpo di funzione corrente. 
+Le variabili di ritorno vengono assegnate e il flusso di controllo continua 
+dopo "_" nel modificatore precedente.
 
-Arbitrary expressions are allowed for modifier arguments and in this context,
-all symbols visible from the function are visible in the modifier. Symbols
-introduced in the modifier are not visible in the function (as they might
-change by overriding).
+Sono consentite espressioni arbitrarie per gli argomenti del modificatore e 
+in questo contesto, tutti i simboli visibili dalla funzione sono visibili nel modificatore. 
+I simboli introdotti nel modificatore non sono visibili nella funzione 
+(poiché potrebbero cambiare per overriding).
