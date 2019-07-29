@@ -2,54 +2,51 @@
 
 .. _visibility-and-getters:
 
-**********************
-Visibility and Getters
-**********************
+*******************
+Visibilità e Getter
+*******************
 
-Since Solidity knows two kinds of function calls (internal
-ones that do not create an actual EVM call (also called
-a "message call") and external
-ones that do), there are four types of visibilities for
-functions and state variables.
 
-Functions have to be specified as being ``external``,
-``public``, ``internal`` or ``private``.
-For state variables, ``external`` is not possible.
+Poiché in Solidity eistono due tipi di chiamate di funzione 
+(internal che non creano una vera chiamata EVM (chiamata anche "messgae call") 
+ed external quelli che lo fanno), esistono quattro tipi di visibilità per 
+funzioni e variabili di stato.
+
+Le funzioni devono essere specificate con ``external``,
+``public``, ``internal`` o ``private``.
+Per le variabili di stato, ``external`` non è consentito.
 
 ``external``:
-    External functions are part of the contract interface,
-    which means they can be called from other contracts and
-    via transactions. An external function ``f`` cannot be called
-    internally (i.e. ``f()`` does not work, but ``this.f()`` works).
-    External functions are sometimes more efficient when
-    they receive large arrays of data.
-
+    Le funzioni external fanno parte dell'interfaccia del contratto, 
+    il che significa che possono essere chiamate da altri contratti e 
+    tramite transazioni. Una funzione esterna `` f`` non può essere 
+    richiamata internamente (cioè `` f () `` non funziona, ma `` this.f () `` funziona).
+    Le funzioni esterne sono talvolta più efficienti quando ricevono 
+    grandi array di dati.
+    
 ``public``:
-    Public functions are part of the contract interface
-    and can be either called internally or via
-    messages. For public state variables, an automatic getter
-    function (see below) is generated.
+    Le funzioni pubbliche fanno parte dell'interfaccia del contratto 
+    e possono essere chiamate internamente o tramite messaggi. 
+    Per le variabili di stato pubbliche, viene generata una funzione 
+    getter automatica (vedi sotto).
 
 ``internal``:
-    Those functions and state variables can only be
-    accessed internally (i.e. from within the current contract
-    or contracts deriving from it), without using ``this``.
+    Tali funzioni e variabili di stato sono accessibili solo internamente 
+    (ovvero dall'interno del contratto o dei contratti che ne derivano), 
+    senza usare ``this``.
 
 ``private``:
-    Private functions and state variables are only
-    visible for the contract they are defined in and not in
-    derived contracts.
+    Le funzioni private e le variabili di stato sono visibili solo nel 
+    contratto nel quale sono definite e non nei contratti derivati.
 
 .. note::
-    Everything that is inside a contract is visible to
-    all observers external to the blockchain. Making something ``private``
-    only prevents other contracts from reading or modifying
-    the information, but it will still be visible to the
-    whole world outside of the blockchain.
+    Tutto ciò che è all'interno di un contratto è visibile a tutti gli 
+    osservatori esterni alla blockchain. Dichiarare qulcosa come ``privato`` 
+    impedisce solo ad altri contratti di leggere o modificare le informazioni, 
+    ma sarà comunque visibile a tutto il mondo al di fuori della blockchain.
 
-The visibility specifier is given after the type for
-state variables and between parameter list and
-return parameter list for functions.
+L'identificatore di visibilità viene fornito dopo il tipo per le variabili 
+di stato e tra l'elenco dei parametri e l'elenco dei parametri di ritorno per le funzioni.
 
 ::
 
@@ -61,9 +58,9 @@ return parameter list for functions.
         uint public data;
     }
 
-In the following example, ``D``, can call ``c.getData()`` to retrieve the value of
-``data`` in state storage, but is not able to call ``f``. Contract ``E`` is derived from
-``C`` and, thus, can call ``compute``.
+Nell'esempio seguente, ``D`` può chiamare ``c.getData()`` per recuperare il valore di
+``data`` nello storage dello stato, ma non può chiamare ``f``. 
+Il contratto ``E`` è derivato da ``C`` e quindi può chiamare ``compute``.
 
 ::
 
@@ -78,36 +75,36 @@ In the following example, ``D``, can call ``c.getData()`` to retrieve the value 
         function compute(uint a, uint b) internal pure returns (uint) { return a + b; }
     }
 
-    // This will not compile
+    // Questo non compila
     contract D {
         function readData() public {
             C c = new C();
-            uint local = c.f(7); // error: member `f` is not visible
+            uint local = c.f(7); // errore: `f` non è visibile
             c.setData(3);
             local = c.getData();
-            local = c.compute(3, 5); // error: member `compute` is not visible
+            local = c.compute(3, 5); // erorre: `compute` non è visibile
         }
     }
 
     contract E is C {
         function g() public {
             C c = new C();
-            uint val = compute(3, 5); // access to internal member (from derived to parent contract)
+            uint val = compute(3, 5); // accesso ad un elemento internal (dal contratto derivato a quello genitore)
         }
     }
 
 .. index:: ! getter;function, ! function;getter
 .. _getter-functions:
 
-Getter Functions
-================
+Funzioni Getter
+===============
 
-The compiler automatically creates getter functions for
-all **public** state variables. For the contract given below, the compiler will
-generate a function called ``data`` that does not take any
-arguments and returns a ``uint``, the value of the state
-variable ``data``. State variables can be initialized
-when they are declared.
+
+Il compilatore crea automaticamente funzioni getter per tutte le variabili di stato **public**. 
+Per il contratto indicato di seguito, il compilatore genera una funzione chiamata 
+``data`` che non accetta alcun argomento e restituisce un ``uint``, il valore della 
+variabile di stato ``data``. 
+Le variabili di stato possono essere inizializzate quando vengono dichiarate.
 
 ::
 
@@ -124,10 +121,9 @@ when they are declared.
         }
     }
 
-The getter functions have external visibility. If the
-symbol is accessed internally (i.e. without ``this.``),
-it evaluates to a state variable.  If it is accessed externally
-(i.e. with ``this.``), it evaluates to a function.
+Le funzioni getter hanno visibilità external. Se il dato viene acceduto internamente
+(i.e. senza ``this.``), allora si comporta come una variabile di stato. 
+Se acceduto esternamente, i.e. con ``this.``, si comporta come una funzione.
 
 ::
 
@@ -136,43 +132,44 @@ it evaluates to a state variable.  If it is accessed externally
     contract C {
         uint public data;
         function x() public returns (uint) {
-            data = 3; // internal access
-            return this.data(); // external access
+            data = 3; // accesso interno
+            return this.data(); // accesso esterno
         }
     }
 
-If you have a ``public`` state variable of array type, then you can only retrieve
-single elements of the array via the generated getter function. This mechanism
-exists to avoid high gas costs when returning an entire array. You can use
-arguments to specify which individual element to return, for example
-``data(0)``. If you want to return an entire array in one call, then you need
-to write a function, for example:
+Se si dispone di una variabile di stato ``public`` di tipo array, 
+è possibile recuperare solo singoli elementi dell'array tramite la funzione 
+getter generata. Questo meccanismo esiste per evitare elevati costi di gas 
+quando si restituisce un intero array. È possibile utilizzare gli argomenti 
+per specificare quale singolo elemento restituire, ad esempio ``data(0)``. 
+Se si desidera restituire un intero array in una chiamata, 
+è necessario scrivere una funzione, ad esempio:
 
 ::
 
   pragma solidity >=0.4.0 <0.7.0;
 
   contract arrayExample {
-    // public state variable
+    // variabile di stato pubblica
     uint[] public myArray;
 
-    // Getter function generated by the compiler
+    // Funzione getter generata dal compilatore
     /*
     function myArray(uint i) returns (uint) {
         return myArray[i];
     }
     */
 
-    // function that returns entire array
+    // Funzione che restituisce un intero array
     function getArray() returns (uint[] memory) {
         return myArray;
     }
   }
 
-Now you can use ``getArray()`` to retrieve the entire array, instead of
-``myArray(i)``, which returns a single element per call.
+Ora si può utilizzare ``getArray()`` per recuperare un intero array, invece di
+``myArray(i)``, che restituisce un singolo elementoper ogni chiamata.
 
-The next example is more complex:
+L'esempio seguente è più complicato:
 
 ::
 
@@ -187,8 +184,9 @@ The next example is more complex:
         mapping (uint => mapping(bool => Data[])) public data;
     }
 
-It generates a function of the following form. The mapping in the struct is omitted
-because there is no good way to provide the key for the mapping:
+L'esempio sopra genera una funzione col la seguente struttura. 
+Il mapping nella struct è omesso perché non esiste un metodo
+efficace per fornire la chiave del mapping:
 
 ::
 

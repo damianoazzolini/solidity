@@ -177,19 +177,22 @@ I seguenti statement sono considerati modificatori dello stato:
 Pure Function
 =============
 
-Functions can be declared ``pure`` in which case they promise not to read from or modify the state.
+Le funzioni possono essere dichiarate ``pure``. In questo caso, queste funzioni
+promettono di non leggere dallo stato o modificarlo.
 
 .. note::
-  If the compiler's EVM target is Byzantium or newer (default) the opcode ``STATICCALL`` is used,
-  which does not guarantee that the state is not read, but at least that it is not modified.
+  Se la EVM target della compilazione è Byzantium o nuova (default) l'opcode ``STATICCALL`` 
+  viene usato, il quale però non garantisce che lo stato non sia letto, me almeno non è
+  modificato.
 
-In addition to the list of state modifying statements explained above, the following are considered reading from the state:
+In aggiunta alla lista di operazioni modificatori di stato elencate sopra, le seguenti sono
+considerate operazioni che leggono lo stato:
 
-#. Reading from state variables.
-#. Accessing ``address(this).balance`` or ``<address>.balance``.
-#. Accessing any of the members of ``block``, ``tx``, ``msg`` (with the exception of ``msg.sig`` and ``msg.data``).
-#. Calling any function not marked ``pure``.
-#. Using inline assembly that contains certain opcodes.
+#. Lettura di variabili si stato.
+#. Accesso a ``address(this).balance`` o ``<address>.balance``.
+#. Accesso ad uno qualsiasi dei membri di ``block``, ``tx``, ``msg`` (ad eccezione di ``msg.sig`` e ``msg.data``).
+#. Chiamata ad una funzione non contrassegnata con ``pure``.
+#. Utilizzo di inline assembly che contiene alcuni opcode particolari.
 
 ::
 
@@ -201,107 +204,107 @@ In addition to the list of state modifying statements explained above, the follo
         }
     }
 
-Pure functions are able to use the `revert()` and `require()` functions to revert
-potential state changes when an :ref:`error occurs <assert-and-require>`.
-
-Reverting a state change is not considered a "state modification", as only changes to the
-state made previously in code that did not have the ``view`` or ``pure`` restriction
-are reverted and that code has the option to catch the ``revert`` and not pass it on.
-
-This behaviour is also in line with the ``STATICCALL`` opcode.
+Le funzioni pure possono utilizzare le funzioni `revert()` e `require()` per ripristinare
+potenziali cambi di stato quando :ref:`accade un errore <assert-and-require>`.
+Il ripristino di una modifica di stato non è considerato una "modifica di stato".
+Questo comportamento è in linea con l'opcode ``STATICCALL``.
 
 .. warning::
-  It is not possible to prevent functions from reading the state at the level
-  of the EVM, it is only possible to prevent them from writing to the state
-  (i.e. only ``view`` can be enforced at the EVM level, ``pure`` can not).
+  Non è possibile impedire ad una funzione la lettura dello stato a livello
+  EVM, è solo possibile impedire la scrittura
+  (solo ``view`` può essere applicato a livello EVM level, ``pure`` no).
 
 .. note::
-  Prior to version 0.5.0, the compiler did not use the ``STATICCALL`` opcode
-  for ``pure`` functions.
-  This enabled state modifications in ``pure`` functions through the use of
-  invalid explicit type conversions.
-  By using  ``STATICCALL`` for ``pure`` functions, modifications to the
-  state are prevented on the level of the EVM.
+  Precedentemente alla versione 0.5.0, il compilatore non usa l'opcode ``STATICCALL``
+  per le funzioni ``pure``.
+  Questo permette la modifica di stato nelle funzioni
+  ``pure`` attraverso l'utilizzo di conversioni tra tipi espliciti non valide.
+  Utilizzando ``STATICCALL`` per funzioni ``pure``, le modifiche allo stato sono bloccate
+  a livello EVM.
 
 .. note::
-  Prior to version 0.4.17 the compiler did not enforce that ``pure`` is not reading the state.
-  It is a compile-time type check, which can be circumvented doing invalid explicit conversions
-  between contract types, because the compiler can verify that the type of the contract does
-  not do state-changing operations, but it cannot check that the contract that will be called
-  at runtime is actually of that type.
+  Prima della versione 0.4.17 il compilatore non imponeva che ``pure`` non leggesse lo stato.
+  È un controllo a compile-time, che può essere evitato attraverso conversioni esplicite
+  tra tipi, perché il compilatore può solamente verificare che i tipi non effettuino operazioni di cambi
+  di stato, ma non può controllare che il contratto che verrà chiamato a runtime 
+  sia di fatto di quel tipo.
 
 .. index:: ! fallback function, function;fallback
 
 .. _fallback-function:
 
-Fallback Function
+Funzione Fallback
 =================
 
-A contract can have exactly one unnamed function. This function cannot have
-arguments, cannot return anything and has to have ``external`` visibility.
-It is executed on a call to the contract if none of the other
-functions match the given function identifier (or if no data was supplied at
-all).
+Un contratto può avere esattamente una funzione senza nome. 
+Questa funzione non può avere argomenti, non può restituire nulla e deve avere 
+una visibilità `` external``.
+Viene eseguito a seguito di una chiamata al contratto se nessuna delle altre 
+funzioni corrisponde all'identificatore di funzione fornito (o se non è stato fornito 
+alcun dato).
 
-Furthermore, this function is executed whenever the contract receives plain
-Ether (without data). To receive Ether and add it to the total balance of the contract, the fallback function
-must be marked ``payable``. If no such function exists, the contract cannot receive
-Ether through regular transactions and throws an exception.
+Inoltre, questa funzione viene eseguita ogni volta che il contratto riceve 
+Ether (senza dati). Per ricevere Ether e aggiungerlo al saldo totale del contratto, 
+la funzione di fallback deve essere contrassegnata come ``payable``. 
+Se tale funzione non esiste, il contratto non può ricevere Ether attraverso transazioni 
+regolari e genera un'eccezione.
 
-In the worst case, the fallback function can only rely on 2300 gas being
-available (for example when `send` or `transfer` is used), leaving little
-room to perform other operations except basic logging. The following operations
-will consume more gas than the 2300 gas stipend:
+Nel peggiore dei casi, la funzione di fallback può fare affidamento solo sulla 
+disponibilità di 2300 gas (ad esempio quando si utilizza `send` o` transfer`), l
+asciando poco spazio per eseguire altre operazioni tranne logging di base. 
+Le seguenti operazioni consumano più gas rispetto al valore di 2300:
 
-- Writing to storage
-- Creating a contract
-- Calling an external function which consumes a large amount of gas
-- Sending Ether
+- Scrittura nello storage
+- Creazione di un contratto
+- Chiamata di una funzione external che consuma una grande quantità di gas
+- Invio di Ether
 
-Like any function, the fallback function can execute complex operations as long as there is enough gas passed on to it.
-
-.. warning::
-    The fallback function is also executed if the caller meant to call
-    a function that is not available. If you want to implement the fallback
-    function only to receive ether, you should add a check
-    like ``require(msg.data.length == 0)`` to prevent invalid calls.
+Come qualsiasi funzione, la funzione di fallback può eseguire operazioni complesse purché vi sia abbastanza gas.
 
 .. warning::
-    Contracts that receive Ether directly (without a function call, i.e. using ``send`` or ``transfer``)
-    but do not define a fallback function
-    throw an exception, sending back the Ether (this was different
-    before Solidity v0.4.0). So if you want your contract to receive Ether,
-    you have to implement a payable fallback function.
+    La funzione di fallback viene eseguita anche se il chiamante intendeva chiamare una 
+    funzione che non è disponibile. Se si desidera implementare la funzione di fallback 
+    solo per ricevere Ether, è necessario aggiungere un controllo come 
+    ``require(msg.data.length == 0)`` per evitare chiamate non valide.
 
 .. warning::
-    A contract without a payable fallback function can receive Ether as a recipient of a `coinbase transaction` (aka `miner block reward`)
-    or as a destination of a ``selfdestruct``.
+    I contratti che ricevono Ether direttamente (senza una function call, usando per esempio ``send`` o ``transfer``)
+    ma non definiscono una funzione di fallback 
+    lanciano un'eccezione, mandando indietro Ether (comportamento diverso prima di
+    Solidity v0.4.0). Se un contratto deve ricevere Ether, bisogna implementare una 
+    funzione di fallback payable.
+
+.. warning::
+    Un contratto senza una funzione di fallback payable può ricevere Ether come a destinatario 
+    di una `coinbase transaction` (`miner block reward`)
+    o come destinazione di ``selfdestruct``.
 
 .. note::
-    Even though the fallback function cannot have arguments, one can still use ``msg.data`` to retrieve
-    any payload supplied with the call.
+    Anche se la funzione di fallback non può avere argomenti, si può comunque usare ``msg.data`` per recuperare qualsiasi payload fornito con la chiamata.
 
-    A contract cannot react to such Ether transfers and thus also cannot reject them. This is a design choice of the EVM and Solidity cannot work around it.
+    Un contratto non può reagire a tali trasferimenti di Ether e quindi non può rifiutarli. 
+    Questa è una scelta progettuale dell'EVM e Solidity non può essere aggirata.
 
-    It also means that ``address(this).balance`` can be higher than the sum of some manual accounting implemented in a contract (i.e. having a counter updated in the fallback function).
+    Significa anche che `` address (this) .balance`` può essere superiore alla somma 
+    di un qualche tipo di contatore manuale implementato in un contratto (ovvero avere 
+    un contatore nella funzione di fallback).
 
 ::
 
     pragma solidity >=0.5.0 <0.7.0;
 
     contract Test {
-        // This function is called for all messages sent to
-        // this contract (there is no other function).
-        // Sending Ether to this contract will cause an exception,
-        // because the fallback function does not have the `payable`
-        // modifier.
+        // Questa funzione è chiamata per tutti i messaggi inviati a
+        // questo contratto (non c'è nessuna altra funzione).
+        // L'invio di Ether a questo contratto causa una eccezione,
+        // perché la funzione di fallback non ha il modificatore `payable`.
         function() external { x = 1; }
         uint x;
     }
 
 
-    // This contract keeps all Ether sent to it with no way
-    // to get it back.
+    // Questo contratto mantiene tutto l'Ether inviatogli, senza possibilità
+    // di recuperarlo.
     contract Sink {
         function() external payable { }
     }
@@ -310,15 +313,15 @@ Like any function, the fallback function can execute complex operations as long 
         function callTest(Test test) public returns (bool) {
             (bool success,) = address(test).call(abi.encodeWithSignature("nonExistingFunction()"));
             require(success);
-            // results in test.x becoming == 1.
+            // risultato di test.x == 1.
 
-            // address(test) will not allow to call ``send`` directly, since ``test`` has no payable
-            // fallback function. It has to be converted to the ``address payable`` type via an
-            // intermediate conversion to ``uint160`` to even allow calling ``send`` on it.
+            // address(test) non permette la chiamata diretta a ``send``, dato che ``test`` non ha una 
+            // funzione di fallback payable. Deve essere convertita al tipo ``address payable`` attraverso una
+            // conversione intermedia a ``uint160`` per autorizzare anche la chiamata ``send``.
             address payable testPayable = address(uint160(address(test)));
 
-            // If someone sends ether to that contract,
-            // the transfer will fail, i.e. this returns false here.
+            // Se qualcuno invia Ether al contratto,
+            // il trasferimento fallisce, questo return restituisce false.
             return testPayable.send(2 ether);
         }
     }
@@ -327,14 +330,13 @@ Like any function, the fallback function can execute complex operations as long 
 
 .. _overload-function:
 
-Function Overloading
-====================
+Overloading di Funzioni
+=======================
 
-A contract can have multiple functions of the same name but with different parameter
-types.
-This process is called "overloading" and also applies to inherited functions.
-The following example shows overloading of the function
-``f`` in the scope of contract ``A``.
+Un contratto può avere diverse funzioni con lo stesso nome ma con
+parametri di tipi differenti.
+Questo processo è chiamato "overloading" e si applica anche alle funzioni ereditate.
+L'esempio seguente mostra l'verloading della funzione ``f`` nello scope del contratto ``A``.
 
 ::
 
@@ -351,14 +353,15 @@ The following example shows overloading of the function
         }
     }
 
-Overloaded functions are also present in the external interface. It is an error if two
-externally visible functions differ by their Solidity types but not by their external types.
+Le funzioni overloaded sono presenti anche nell'interfaccia esterna. 
+È un errore se due funzioni esternamente visibili differiscono 
+solamente nei tipi Solidity ma non negli external type.
 
 ::
 
     pragma solidity >=0.4.16 <0.7.0;
 
-    // This will not compile
+    // Questo esempio non compila
     contract A {
         function f(B _in) public pure returns (B out) {
             out = _in;
@@ -373,19 +376,20 @@ externally visible functions differ by their Solidity types but not by their ext
     }
 
 
-Both ``f`` function overloads above end up accepting the address type for the ABI although
-they are considered different inside Solidity.
+Entrambe le funzioni ``f`` dell'esempio sopra accettano il tipo di indirizzo per ABI 
+anche se sono differenti all'interno di Solidity.
 
-Overload resolution and Argument matching
------------------------------------------
+Risoluzione dell'Overload e Matching degli Argomenti
+----------------------------------------------------
 
-Overloaded functions are selected by matching the function declarations in the current scope
-to the arguments supplied in the function call. Functions are selected as overload candidates
-if all arguments can be implicitly converted to the expected types. If there is not exactly one
-candidate, resolution fails.
+Le funzioni overloaded sono selezionate facendo il matching con la dichiarazione 
+di funzione nello scope corrente con gli argomenti forniti alla chiamata di funzione. 
+Le funzioni sono selezionate come candidati per l'overload se tutti 
+gli argomenti possono essere convertiti implicitamente ai tipi richiesti. 
+Se non esiste un candidato, la risoluzione fallisce.
 
 .. note::
-    Return parameters are not taken into account for overload resolution.
+    I parametri di ritorno non sono considerati per la risoluzione dell'overload.
 
 ::
 
@@ -401,6 +405,6 @@ candidate, resolution fails.
         }
     }
 
-Calling ``f(50)`` would create a type error since ``50`` can be implicitly converted both to ``uint8``
-and ``uint256`` types. On another hand ``f(256)`` would resolve to ``f(uint256)`` overload as ``256`` cannot be implicitly
-converted to ``uint8``.
+La chiamata a ``f(50)`` crea un errore di tipo perché ``50`` può essere implicitamente convertito sia a ``uint8``
+che ``uint256``. D'altra parte, ``f(256)`` risolve a ``f(uint256)`` perché ``256`` non può
+essere implicitamente convertito a ``uint8``.

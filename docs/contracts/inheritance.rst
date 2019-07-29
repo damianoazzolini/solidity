@@ -1,27 +1,28 @@
 .. index:: ! inheritance, ! base class, ! contract;base, ! deriving
 
-***********
-Inheritance
-***********
+************
+Ereditarietà
+************
 
-Solidity supports multiple inheritance including polymorphism.
+Solidity supporta ereditarietà multipla, incluso il polimorfismo.
 
-All function calls are virtual, which means that the most derived function
-is called, except when the contract name is explicitly given or the
-``super`` keyword is used.
+Tutte le chiamate di funzione sono virtuali, il che significa che 
+viene chiamata la funzione più derivata, tranne quando viene 
+specificato esplicitamente il nome del contratto o viene utilizzata 
+la parola chiave ``super``.
 
-When a contract inherits from other contracts, only a single
-contract is created on the blockchain, and the code from all the base contracts
-is compiled into the created contract. This means that all internal calls
-to functions of base contracts also just use internal function calls
-(``super.f(..)`` will use JUMP and not a message call).
+Quando un contratto eredita da altri contratti, sulla blockchain viene 
+creato un solo contratto e il codice di tutti i contratti di base viene 
+compilato nel contratto creato. Ciò significa che anche tutte le chiamate 
+interne a funzioni dei contratti di base utilizzano solo chiamate di funzioni interne
+(`` super.f (..) `` utilizza JUMP e non una message call).
 
-The general inheritance system is very similar to
-`Python's <https://docs.python.org/3/tutorial/classes.html#inheritance>`_,
-especially concerning multiple inheritance, but there are also
-some :ref:`differences <multi-inheritance>`.
+Il sistema di ereditarietà generale è molto simile a quello di
+`Python <https://docs.python.org/3/tutorial/classes.html#inheritance>`_,
+specialmente per quanto riguarda l'ereditarietà multipla, ma ci sono anche
+:ref:`alcune differenze <multi-inheritance>`.
 
-Details are given in the following example.
+I dettagli sono riportati nel seguente esempio.
 
 ::
 
@@ -34,10 +35,10 @@ Details are given in the following example.
     }
 
 
-    // Use `is` to derive from another contract. Derived
-    // contracts can access all non-private members including
-    // internal functions and state variables. These cannot be
-    // accessed externally via `this`, though.
+    // Viene utilizzato `is` per derivare da un altro contratto. I contratti 
+    // derivati possono accedere a tutti gli elementi non privati comprese
+    // le funzioni internal e le variabili di stato. Tuttavia queste non possono
+    // essere accedute esternamente usando `this`.
     contract Mortal is Owned {
         function kill() public {
             if (msg.sender == owner) selfdestruct(owner);
@@ -45,10 +46,10 @@ Details are given in the following example.
     }
 
 
-    // These abstract contracts are only provided to make the
-    // interface known to the compiler. Note the function
-    // without body. If a contract does not implement all
-    // functions it can only be used as an interface.
+    // Questi contratti astratti sono scritti solamente per rendere nota
+    // l'interfaccia al compilatore. Da notare la funzione senza il body.
+    // Se un contratto non implementa tutte le funzioni allora può essere
+    // utilizzato solamente come interfaccia.
     contract Config {
         function lookup(uint id) public returns (address adr);
     }
@@ -60,35 +61,33 @@ Details are given in the following example.
     }
 
 
-    // Multiple inheritance is possible. Note that `owned` is
-    // also a base class of `mortal`, yet there is only a single
-    // instance of `owned` (as for virtual inheritance in C++).
+    // L'eredità multipla è consentita. Da notare che `owned` è anche
+    // una classe base per `mortal`, ma c'è solamemte una singola
+    // istanza di `owned` (come per la virtual inheritance in C++).
     contract Named is Owned, Mortal {
         constructor(bytes32 name) public {
             Config config = Config(0xD5f9D8D94886E70b06E474c3fB14Fd43E2f23970);
             NameReg(config.lookup(1)).register(name);
         }
 
-        // Functions can be overridden by another function with the same name and
-        // the same number/types of inputs.  If the overriding function has different
-        // types of output parameters, that causes an error.
-        // Both local and message-based function calls take these overrides
-        // into account.
+        // Le funzioni possono essere sovrascritte da un'altra funzione con lo stesso nome
+        // e lo stesso numero e tipo di input. Se la funzione che effettua overriding ha i tipi dei parametri
+        // di output differenti, questo causa un errore.
+        // Sia le chiamate a funzioni locali che message-based considerano questi override
         function kill() public {
             if (msg.sender == owner) {
                 Config config = Config(0xD5f9D8D94886E70b06E474c3fB14Fd43E2f23970);
                 NameReg(config.lookup(1)).unregister();
-                // It is still possible to call a specific
-                // overridden function.
+                // è ancora possibile chiamare una specifica funzione sovrascritta
                 Mortal.kill();
             }
         }
     }
 
 
-    // If a constructor takes an argument, it needs to be
-    // provided in the header (or modifier-invocation-style at
-    // the constructor of the derived contract (see below)).
+    // Se un costruttore riceve un argomento, questo deve essere fornito
+    // nell'header (o attraverso modifier-invocation-style nel
+    // costruttore del contratto derivato (vedere sotto)).
     contract PriceFeed is Owned, Mortal, Named("GoldFeed") {
         function updateInfo(uint newInfo) public {
             if (msg.sender == owner) info = newInfo;
@@ -99,9 +98,9 @@ Details are given in the following example.
         uint info;
     }
 
-Note that above, we call ``mortal.kill()`` to "forward" the
-destruction request. The way this is done is problematic, as
-seen in the following example::
+Da notare che sopra viene chiamata ``mortal.kill()`` per "inoltrare" la richiesta
+di distruzione. Il modo in cui è fatto è problematico, come può essere visto in 
+questo esempio::
 
     pragma solidity >=0.4.22 <0.7.0;
 
@@ -127,10 +126,8 @@ seen in the following example::
     contract Final is Base1, Base2 {
     }
 
-A call to ``Final.kill()`` will call ``Base2.kill`` as the most
-derived override, but this function will bypass
-``Base1.kill``, basically because it does not even know about
-``Base1``.  The way around this is to use ``super``::
+Una chiamata a ``Final.kill()`` chiama ``Base2.kill`` ma bypassa
+``Base1.kill``. Per evitare questo comportamento basta utilizzare ``super``::
 
     pragma solidity >=0.4.22 <0.7.0;
 
@@ -157,42 +154,38 @@ derived override, but this function will bypass
     contract Final is Base1, Base2 {
     }
 
-If ``Base2`` calls a function of ``super``, it does not simply
-call this function on one of its base contracts.  Rather, it
-calls this function on the next base contract in the final
-inheritance graph, so it will call ``Base1.kill()`` (note that
-the final inheritance sequence is -- starting with the most
-derived contract: Final, Base2, Base1, mortal, owned).
-The actual function that is called when using super is
-not known in the context of the class where it is used,
-although its type is known. This is similar for ordinary
-virtual method lookup.
+Se ``Base2`` chiama una funzione di ``super``, non chiama solamente questa funzione
+in uno dei contratti base ma chiama questa funzione sul prossimo contratto
+base nel grafo di ereditarietà, quindi ``Base1.kill()`` (notare che la sequenza
+finale di ereditarietà è -- partendo dal contratto più derivato: Final, Base2, 
+Base1, mortal, owned).
+La funzione che viene chiamata utilizzando super non è nota nel contesto della classe 
+nella quale è usata anche se il tipo è noto. 
 
 .. index:: ! constructor
 
 .. _constructor:
 
-Constructors
-============
+Costruttori
+===========
 
-A constructor is an optional function declared with the ``constructor`` keyword
-which is executed upon contract creation, and where you can run contract
-initialisation code.
+Un costruttore è una funzione opzionale dichiarata con la keyword ``constructor`` 
+che viene eseguita alla creazione del contratto che serve per inizializzare il 
+contratto stesso.
 
-Before the constructor code is executed, state variables are initialised to
-their specified value if you initialise them inline, or zero if you do not.
+Prima dell'esecuzione del costruttore, le variabili di stato sono inizializzate 
+al loro valore specifico se inizializzate inline, altrimenti a 0.
 
-After the constructor has run, the final code of the contract is deployed
-to the blockchain. The deployment of
-the code costs additional gas linear to the length of the code.
-This code includes all functions that are part of the public interface
-and all functions that are reachable from there through function calls.
-It does not include the constructor code or internal functions that are
-only called from the constructor.
+Dopo l'esecuzione del costruttore, il codice del contratto viene caricato in 
+blockchain. Il caricamento costa gas in proporzione lineare alla lunghezza del 
+contratto. Questo codice include tutte le funzioni che sono parte dell'interfaccia 
+pubblica e tutte le funzioni che sono raggiungibili attraverso chiamate a funzioni.
+Non vengono inclusi il costruttore e le funzioni internal che sono chiamate solamente
+dal costruttore.
 
-Constructor functions can be either ``public`` or ``internal``. If there is no
-constructor, the contract will assume the default constructor, which is
-equivalent to ``constructor() public {}``. For example:
+Le funzioni costruttore possono essere sia ``public`` che ``internal``. 
+Se non è presente un costruttore, il contratto eredita il costruttore di
+default che è equivalente a ``constructor() public {}``. Per esempio:
 
 ::
 
@@ -210,21 +203,22 @@ equivalent to ``constructor() public {}``. For example:
         constructor() public {}
     }
 
-A constructor set as ``internal`` causes the contract to be marked as :ref:`abstract <abstract-contract>`.
+Un costruttore marcato con ``internal`` fa sì che il contratto sia :ref:`astratto <abstract-contract>`.
 
 .. warning ::
-    Prior to version 0.4.22, constructors were defined as functions with the same name as the contract.
-    This syntax was deprecated and is not allowed anymore in version 0.5.0.
+    Prima della versione 0.4.22, i costruttori venivano definiti come funzioni 
+    con lo stesso nome del contratto. Questa sintassi è stata deprecata e non 
+    è più consentita nella versione 0.5.0.
 
 
 .. index:: ! base;constructor
 
-Arguments for Base Constructors
-===============================
+Argomenti per i Costruttori Base
+================================
 
-The constructors of all the base contracts will be called following the
-linearization rules explained below. If the base constructors have arguments,
-derived contracts need to specify all of them. This can be done in two ways::
+I costruttori di tutti i contratti di base verranno chiamati seguendo le regole di 
+linearizzazione spiegate di seguito. Se i costruttori di base hanno argomenti, i 
+contratti derivati ​​devono specificarli tutti. Questo può essere fatto in due modi::
 
     pragma solidity >=0.4.22 <0.7.0;
 
@@ -233,55 +227,57 @@ derived contracts need to specify all of them. This can be done in two ways::
         constructor(uint _x) public { x = _x; }
     }
 
-    // Either directly specify in the inheritance list...
+    // Sia specificandolo direttamente nella lista di ereditarietà...
     contract Derived1 is Base(7) {
         constructor() public {}
     }
 
-    // or through a "modifier" of the derived constructor.
+    // o attraverso un "modificatore" del costruttore derivato.
     contract Derived2 is Base {
         constructor(uint _y) Base(_y * _y) public {}
     }
 
-One way is directly in the inheritance list (``is Base(7)``).  The other is in
-the way a modifier is invoked as part of
-the derived constructor (``Base(_y * _y)``). The first way to
-do it is more convenient if the constructor argument is a
-constant and defines the behaviour of the contract or
-describes it. The second way has to be used if the
-constructor arguments of the base depend on those of the
-derived contract. Arguments have to be given either in the
-inheritance list or in modifier-style in the derived constructor.
-Specifying arguments in both places is an error.
+Un modo è direttamente nella lista di ereditarietà (``is Base(7)``).  
 
-If a derived contract does not specify the arguments to all of its base
-contracts' constructors, it will be abstract.
+L'altro è nel modo in cui un modificatore viene invocato come parte 
+del costruttore derivato (``Base(_y * _y)``). Il primo modo per farlo è più 
+conveniente se l'argomento del costruttore è una costante e definisce il 
+comportamento del contratto o lo descrive.
+Il secondo modo deve essere usato se gli argomenti del costruttore di base 
+dipendono da quelli del contratto derivato. 
+Gli argomenti devono essere indicati nell'elenco di ereditarietà o 
+in stile modificatore nel costruttore derivato.
+La specifica degli argomenti in entrambe le posizioni è un errore.
+
+
+Se un contratto derivato non specifica gli argomenti di tutti 
+i costruttori dei suoi contratti base, sarà astratto.
 
 .. index:: ! inheritance;multiple, ! linearization, ! C3 linearization
 
 .. _multi-inheritance:
 
-Multiple Inheritance and Linearization
-======================================
+Ereditarietà Multipla e Linearizzazione
+=======================================
 
-Languages that allow multiple inheritance have to deal with
-several problems.  One is the `Diamond Problem <https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem>`_.
-Solidity is similar to Python in that it uses "`C3 Linearization <https://en.wikipedia.org/wiki/C3_linearization>`_"
-to force a specific order in the directed acyclic graph (DAG) of base classes. This
-results in the desirable property of monotonicity but
-disallows some inheritance graphs. Especially, the order in
-which the base classes are given in the ``is`` directive is
-important: You have to list the direct base contracts
-in the order from "most base-like" to "most derived".
-Note that this order is the reverse of the one used in Python.
+I linguaggi che consentono l'ereditarietà multipla devono affrontare diversi problemi.
+Uno di questi è il `Diamond Problem <https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem>`_.
+Solidity è simile a Python perché usa la "`C3 Linearization <https://en.wikipedia.org/wiki/C3_linearization>`_"
+per forzare uno specifico ordine nel grafo diretto aciclico (DAG) delle classi base. 
 
-Another simplifying way to explain this is that when a function is called that
-is defined multiple times in different contracts, the given bases
-are searched from right to left (left to right in Python) in a depth-first manner,
-stopping at the first match. If a base contract has already been searched, it is skipped.
+Ciò si traduce nella proprietà desiderabile della monotonicità ma non consente alcuni grafici di ereditarietà.
+In particolare, l'ordine in cui le classi di base sono indicate nella direttiva `` is`` 
+è importante: devono essere elencati i contratti di base diretti nell'ordine 
+da "più simile a quello base" a "più derivato". Da notare che questo ordine è il contrario 
+di quello usato in Python.
+Un altro modo più semplice per spiegarlo è che, quando viene chiamata una funzione 
+definita più volte in contratti diversi, i contratti base dati vengono scanditi 
+da destra a sinistra (da sinistra a destra in Python) in maniera depth-first, 
+fermandosi alla prima corrispondenza. 
+Se un contratto di base è già stato analizzato, viene ignorato.
 
-In the following code, Solidity will give the
-error "Linearization of inheritance graph impossible".
+Nel codice seguente, Solidity darà l'errore "Linearizzazione del 
+grafico dell'ereditarietà impossibile".
 
 ::
 
@@ -289,15 +285,20 @@ error "Linearization of inheritance graph impossible".
 
     contract X {}
     contract A is X {}
-    // This will not compile
+    // Questo codice non compila
     contract C is A, X {}
 
-The reason for this is that ``C`` requests ``X`` to override ``A``
-(by specifying ``A, X`` in this order), but ``A`` itself
-requests to override ``X``, which is a contradiction that
-cannot be resolved.
+Il motivo è che ``C`` richiede ``X`` per sovrascrivere ``A``
+(specificando ``A, X`` in questo ordine), ma ``A`` stesso
+richiede di sovrascrivere ``X``, il che causa una contraddizione che non 
+puù essere risolta.
 
-One area where inheritance linearization is especially important and perhaps not as clear is when there are multiple constructors in the inheritance hierarchy. The constructors will always be executed in the linearized order, regardless of the order in which their arguments are provided in the inheriting contract's constructor.  For example:
+
+Un'area in cui la linearizzazione dell'ereditarietà è particolarmente importante e 
+forse non altrettanto chiara è quando vi sono più costruttori nella gerarchia 
+dell'ereditarietà. I costruttori saranno sempre eseguiti nell'ordine linearizzato,
+indipendentemente dall'ordine in cui i loro argomenti sono forniti nel 
+costruttore del contratto ereditario. Per esempio:
 
 ::
 
@@ -311,7 +312,7 @@ One area where inheritance linearization is especially important and perhaps not
         constructor() public {}
     }
 
-    // Constructors are executed in the following order:
+    // I costruttori sono eseguiti nel seguente ordine:
     //  1 - Base1
     //  2 - Base2
     //  3 - Derived1
@@ -319,7 +320,7 @@ One area where inheritance linearization is especially important and perhaps not
         constructor() public Base1() Base2() {}
     }
 
-    // Constructors are executed in the following order:
+    // I costruttori sono eseguiti nel seguente ordine:
     //  1 - Base2
     //  2 - Base1
     //  3 - Derived2
@@ -327,7 +328,7 @@ One area where inheritance linearization is especially important and perhaps not
         constructor() public Base2() Base1() {}
     }
 
-    // Constructors are still executed in the following order:
+    // I costruttori sono eseguiti nel seguente ordine:
     //  1 - Base2
     //  2 - Base1
     //  3 - Derived3
@@ -336,9 +337,11 @@ One area where inheritance linearization is especially important and perhaps not
     }
 
 
-Inheriting Different Kinds of Members of the Same Name
-======================================================
+Ereditarietà di Diversi Tipi di Membri dello Stesso Nome
+========================================================
 
-When the inheritance results in a contract with a function and a modifier of the same name, it is considered as an error.
-This error is produced also by an event and a modifier of the same name, and a function and an event of the same name.
-As an exception, a state variable getter can override a public function.
+Quando l'eredità si traduce in un contratto con una funzione e un modificatore 
+con lo stesso nome, questo viene considerato come un errore.
+Questo errore è prodotto anche da un evento e un modificatore con lo stesso nome e da
+una funzione e un evento con lo stesso nome.
+Come eccezione, un getter di variabili di stato può sovrascrivere una funzione pubblica.

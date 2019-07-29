@@ -2,48 +2,49 @@
 
 .. _libraries:
 
-*********
-Libraries
-*********
+********
+Librerie
+********
 
-Libraries are similar to contracts, but their purpose is that they are deployed
-only once at a specific address and their code is reused using the ``DELEGATECALL``
-(``CALLCODE`` until Homestead)
-feature of the EVM. This means that if library functions are called, their code
-is executed in the context of the calling contract, i.e. ``this`` points to the
-calling contract, and especially the storage from the calling contract can be
-accessed. As a library is an isolated piece of source code, it can only access
-state variables of the calling contract if they are explicitly supplied (it
-would have no way to name them, otherwise). Library functions can only be
-called directly (i.e. without the use of ``DELEGATECALL``) if they do not modify
-the state (i.e. if they are ``view`` or ``pure`` functions),
-because libraries are assumed to be stateless. In particular, it is
-not possible to destroy a library.
+Le librerie sono simili a contratti ma il loro scopo è quello di essere caricate
+una sola volta ad uno specifico indirizzo e di essere riutilizzate attraverso
+``DELEGATECALL`` (``CALLCODE`` fino a Homestead). 
+Questo significa che se le funzioni di libreria sono chiamate, il loro
+codice viene eseguito nel contesto del contratto chiamante, i.e. ``this`` 
+punta al contratto chiamante e in particolare, lo storage del contratto chiamante 
+può essere acceduto.
+Poiché una libreria è una parte isolata del codice sorgente, può accedere alle 
+variabili di stato del contratto chiamante solo se vengono fornite esplicitamente 
+(non avrebbe alcun modo di nominarle altrimenti).
+Le funzioni di libreria possono essere chiamate solamente in modo diretto 
+(senza l'uso di ``DELEGATECALL``) se non modificano lo stato
+(cioè se sono funzioni ``view`` o ``pure``), perché si assume
+che le librerie siano prive di stato. In particolare, non è possibile cancellare
+una libreria.
 
 .. note::
-    Until version 0.4.20, it was possible to destroy libraries by
-    circumventing Solidity's type system. Starting from that version,
-    libraries contain a :ref:`mechanism<call-protection>` that
-    disallows state-modifying functions
-    to be called directly (i.e. without ``DELEGATECALL``).
+    Fino alla versione 0.4.20 era possibile cancellare una libreria aggirando
+    il type system di Solidity. A partire da quella versione, le librerie contengono
+    un :ref:`meccanismo <call-protection>` che non consente la chiamata diretta 
+    (senza ``DELEGATECALL``) di funzioni che modificano lo stato.
 
-Libraries can be seen as implicit base contracts of the contracts that use them.
-They will not be explicitly visible in the inheritance hierarchy, but calls
-to library functions look just like calls to functions of explicit base
-contracts (``L.f()`` if ``L`` is the name of the library). Furthermore,
-``internal`` functions of libraries are visible in all contracts, just as
-if the library were a base contract. Of course, calls to internal functions
-use the internal calling convention, which means that all internal types
-can be passed and types :ref:`stored in memory <data-location>` will be passed by reference and not copied.
-To realize this in the EVM, code of internal library functions
-and all functions called from therein will at compile time be pulled into the calling
-contract, and a regular ``JUMP`` call will be used instead of a ``DELEGATECALL``.
+Le librerie possono essere viste come contratti base impliciti dei contratti 
+che le utilizzano. Non sono esplicitamente visibili nella gerarchia dell'ereditarietà, 
+ma le chiamate a funzioni di libreria assomigliano a chiamate a funzioni 
+di contratti di base espliciti (``L.f()`` se ``L`` è il nome della libreria). 
+Inoltre, funzioni ``internal`` di libreriasono visibili in tutti i contratti,
+come se la libreria fosse con contratto base. Chiaramente, una chiamata ad una funzione
+internal utilizza la convenzione per le chiamate a funzioni internal, ciò significa 
+che tutti i tipi internal possono essere passati e i tipi :ref:`salvati in memoria <data-location>` 
+saranno passati per riferimento e non per copia.
+Per realizzare ciò nella EVM, il codice delle funzioni internal di libreria e tutte le 
+funzionichiamate da esso, sono inserite nel contratto chiamante a tempo di 
+compilazione. Quindi viene utilizzata una chiamata ``JUMP`` invece di ``DELEGATECALL``.
 
 .. index:: using for, set
 
-The following example illustrates how to use libraries (but manual method
-be sure to check out :ref:`using for <using-for>` for a
-more advanced example to implement a set).
+L'esempio seguente mostra come utilizzare le librerie (per un esempio più
+avanzato su come implementare i set, vedere :ref:`l'utilizzo del for <using-for>`).
 
 ::
 
@@ -51,22 +52,22 @@ more advanced example to implement a set).
 
 
     library Set {
-        // We define a new struct datatype that will be used to
-        // hold its data in the calling contract.
+        // Definiamo un nuovo tipo di dati di struttura che verrà utilizzato 
+        // per conservare i dati nel contratto di chiamata.
         struct Data { mapping(uint => bool) flags; }
 
-        // Note that the first parameter is of type "storage
-        // reference" and thus only its storage address and not
-        // its contents is passed as part of the call.  This is a
-        // special feature of library functions.  It is idiomatic
-        // to call the first parameter `self`, if the function can
-        // be seen as a method of that object.
+        // Si noti che il primo parametro è di tipo  "storage
+        // reference" ae quindi solo il suo indirizzo di memoria 
+        // e non il suo contenuto viene passato come parte della chiamata. 
+        // Questa è una caratteristica speciale delle funzioni di libreria.
+        // È idiomatico chiamare il primo parametro `self`, se la funzione 
+        // può essere vista come un metodo di quell'oggetto.
         function insert(Data storage self, uint value)
             public
             returns (bool)
         {
             if (self.flags[value])
-                return false; // already there
+                return false; // qua
             self.flags[value] = true;
             return true;
         }
@@ -76,7 +77,7 @@ more advanced example to implement a set).
             returns (bool)
         {
             if (!self.flags[value])
-                return false; // not there
+                return false; // non qua
             self.flags[value] = false;
             return true;
         }
@@ -95,31 +96,30 @@ more advanced example to implement a set).
         Set.Data knownValues;
 
         function register(uint value) public {
-            // The library functions can be called without a
-            // specific instance of the library, since the
-            // "instance" will be the current contract.
+            // Le funzioni di libreria possono essere chiamate senza una 
+            // specifica istanza della libreria, dato che l'istanza
+            // è il contratto corrente.
             require(Set.insert(knownValues, value));
         }
-        // In this contract, we can also directly access knownValues.flags, if we want.
+        // In questo contratto, possiamo anche accedere direttamente a ``knownValues.flags``.
     }
 
-Of course, you do not have to follow this way to use
-libraries: they can also be used without defining struct
-data types. Functions also work without any storage
-reference parameters, and they can have multiple storage reference
-parameters and in any position.
+Chiaramente, non è necessario utilizzare questo metodo per usare le librerie: 
+possono anche essere usate senza definire i tipi di dati di struct. 
+Le funzioni funzionano anche senza parametri di riferimento di storage e 
+possono avere più parametri di riferimento storage e in qualsiasi posizione.
 
-The calls to ``Set.contains``, ``Set.insert`` and ``Set.remove``
-are all compiled as calls (``DELEGATECALL``) to an external
-contract/library. If you use libraries, be aware that an
-actual external function call is performed.
-``msg.sender``, ``msg.value`` and ``this`` will retain their values
-in this call, though (prior to Homestead, because of the use of ``CALLCODE``, ``msg.sender`` and
-``msg.value`` changed, though).
+Le chiamate a ``Set.contains``, ``Set.insert`` e ``Set.remove``
+sono tutte compilate come chiamate (``DELEGATECALL``) ad un
+contratto/libreria esterno. Se vengono utilizzate le librerie, viene effettuata
+una vera chiamata a funzione esterna.
+``msg.sender``, ``msg.value`` e ``this`` mantengono il loro valore nella
+chiamata (prima di Homestead, a causa di ``CALLCODE``, ``msg.sender`` e
+``msg.value`` avrebbe potuto cambiare).
 
-The following example shows how to use :ref:`types stored in memory <data-location>` and
-internal functions in libraries in order to implement
-custom types without the overhead of external function calls:
+Il seguente esempio mostra come utilizzare :ref:`i tipi salvati in memoria <data-location>` 
+e le funzioni interne nelle librerie per implementare dei tipi personalizzati 
+senza l'overhead di una chiamata a funzione esterna:
 
 ::
 
@@ -178,55 +178,49 @@ custom types without the overhead of external function calls:
         }
     }
 
-As the compiler cannot know where the library will be
-deployed at, these addresses have to be filled into the
-final bytecode by a linker
-(see :ref:`commandline-compiler` for how to use the
-commandline compiler for linking). If the addresses are not
-given as arguments to the compiler, the compiled hex code
-will contain placeholders of the form ``__Set______`` (where
-``Set`` is the name of the library). The address can be filled
-manually by replacing all those 40 symbols by the hex
-encoding of the address of the library contract.
+Poiché il compilatore non può sapere dove la libreria verrà caricata
+questi indirizzi devono essere inseriti nel bytecode finale da un linker
+(vedere :ref:`commandline-compiler` per vedere come utilizzare il compilatore
+a linea di comando per il linking). Se gli indirizzi non sono dati come 
+argomenti al compilatore, il codice esadecimale conterrà dei placeholders
+della forma ``__Set______`` (dove ``Set`` è il nome della libreria). 
+Gli indirizzi possono essere inseriti manualmente sostituendo tutti
+i 40 simboli con la codifica esadecimale degli indirizzi dei contratti delle librerie.
 
 .. note::
-    Manually linking libraries on the generated bytecode is discouraged, because
-    it is restricted to 36 characters.
-    You should ask the compiler to link the libraries at the time
-    a contract is compiled by either using
-    the ``--libraries`` option of ``solc`` or the ``libraries`` key if you use
-    the standard-JSON interface to the compiler.
+    Il linking manuale di librerie nel bytecode generato è sconsigliato perché
+    è limitato a 36 caratteri. Si dovrebbe chiedere al compilatore per effettuare 
+    il link alle librerie quando il contratto è compilato utilizzando 
+    l'opzione ``--libraries`` di ``solc`` o la chiave ``libraries`` se vengono utilizzate
+    le interfacce del compilatore standard JSON.
 
-Restrictions for libraries in comparison to contracts:
+Restrizioni delle librerie rispetto ai contratti (queste possono essere cambiate 
+in futuro):
 
-- No state variables
-- Cannot inherit nor be inherited
-- Cannot receive Ether
-
-(These might be lifted at a later point.)
+- No variabili di stato
+- Non possono ereditare o essere ereditate
+- Non possono ricevere Ether
 
 .. _call-protection:
 
-Call Protection For Libraries
-=============================
+Protezione di Chiamate per Librerie
+===================================
 
-As mentioned in the introduction, if a library's code is executed
-using a ``CALL`` instead of a ``DELEGATECALL`` or ``CALLCODE``,
-it will revert unless a ``view`` or ``pure`` function is called.
+Come specificato nell'introduzione, se il codice di una libreria viene eseguito
+utilizzando ``CALL`` invece di ``DELEGATECALL`` o ``CALLCODE``, fallirà se non 
+viene chiamata una funzione ``view`` o ``pure``.
 
-The EVM does not provide a direct way for a contract to detect
-whether it was called using ``CALL`` or not, but a contract
-can use the ``ADDRESS`` opcode to find out "where" it is
-currently running. The generated code compares this address
-to the address used at construction time to determine the mode
-of calling.
+L'EVM non fornisce un modo diretto per un contratto per rilevare se è stato 
+chiamato usando ``CALL`` o no, ma un contratto può usare il codice operativo 
+``ADDRESS`` per scoprire "dove" è attualmente in esecuzione. 
+Il codice generato confronta questo indirizzo con l'indirizzo utilizzato in fase 
+di costruzione per determinare la modalità di chiamata.
 
-More specifically, the runtime code of a library always starts
-with a push instruction, which is a zero of 20 bytes at
-compilation time. When the deploy code runs, this constant
-is replaced in memory by the current address and this
-modified code is stored in the contract. At runtime,
-this causes the deploy time address to be the first
-constant to be pushed onto the stack and the dispatcher
-code compares the current address against this constant
-for any non-view and non-pure function.
+Più specificamente, il codice di runtime di una libreria inizia sempre con 
+un'istruzione push, che è uno zero di 20 byte al momento della compilazione. 
+Quando viene eseguito il codice caricato, questa costante viene sostituita 
+in memoria dall'indirizzo corrente e questo codice modificato viene archiviato 
+nel contratto. In fase di esecuzione, questo fa sì che l'indirizzo 
+di caricamento sia la prima costante da inserire nello stack 
+e il codice dispatcher confronta l'indirizzo corrente con questa costante 
+per qualsiasi funzione non view e non pure.

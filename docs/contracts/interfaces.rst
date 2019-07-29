@@ -3,22 +3,24 @@
 .. _interfaces:
 
 **********
-Interfaces
+Interfacce
 **********
 
-Interfaces are similar to abstract contracts, but they cannot have any functions implemented. There are further restrictions:
+Le interfacce sono simili a contratti astratti ma non possono avere nessuna
+funzione implementata. Ci sono ulteriori restrizioni:
 
-- They cannot inherit other contracts or interfaces.
-- All declared functions must be external.
-- They cannot declare a constructor.
-- They cannot declare state variables.
+- Non possono ereditare altri contratti o interfacce.
+- Tutte le funzioni dichiarate devono essere external.
+- Non possono dichiarare un costruttore.
+- Non possono dichiarare variabili di stato.
 
-Some of these restrictions might be lifted in the future.
+Alcune di queste restrizioni potrebbero essere rimosse in futuro.
 
-Interfaces are basically limited to what the Contract ABI can represent, and the conversion between the ABI and
-an interface should be possible without any information loss.
+Le interfacce sono sostanzialmente limitate a ciò che l'ABI 
+del contratto può rappresentare e la conversione tra l'ABI e un'interfaccia 
+dovrebbe essere possibile senza alcuna perdita di informazioni.
 
-Interfaces are denoted by their own keyword:
+Le interfacce sono indicate dalla loro stessa parola chiave:
 
 ::
 
@@ -30,12 +32,12 @@ Interfaces are denoted by their own keyword:
         function transfer(address recipient, uint amount) external;
     }
 
-Contracts can inherit interfaces as they would inherit other contracts.
+I contratti possono ereditare interfacce come erediterebbero altri contratti.
 
-Types defined inside interfaces and other contract-like structures
-can be accessed from other contracts: ``Token.TokenType`` or ``Token.Coin``.
+I tipi definiti all'interno di interfacce ed altre strutture simili a contratti
+possono essere accedute da altri contratti: ``Token.TokenType`` o ``Token.Coin``.
 
 .. warning:
 
-    Interfaces have supported ``enum`` types since :doc:`Solidity version 0.5.0 <050-breaking-changes>`, make
-    sure the pragma version specifies this version as a minimum.
+    Le interfacce supportano i tipi ``enum`` dalla :doc:`versione di Solidity 0.5.0 <050-breaking-changes>`. 
+    Assicurarsi che la pragma version specifichi almeno questa versione.
