@@ -1,10 +1,10 @@
-#################
-Solidity in Depth
-#################
+#####################
+Solidity in Dettaglio
+#####################
 
-This section should provide you with all you need to know about Solidity.
-If something is missing here, please contact us on
-`Gitter <https://gitter.im/ethereum/solidity>`_ or create a pull request on
+Questa sezione dovrebbe fornire tutte le conoscenze necessare per comprendere Solidity.
+Se manca qualcosa, contattaci su 
+`Gitter <https://gitter.im/ethereum/solidity>`_ o crea una pull request su
 `Github <https://github.com/ethereum/solidity/pulls>`_.
 
 .. toctree::

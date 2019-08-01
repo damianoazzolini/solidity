@@ -2,90 +2,101 @@
 
 .. _ABI:
 
-**************************
-Contract ABI Specification
-**************************
+******************************
+Specifiche ABI di un Contratto
+******************************
 
-Basic Design
-============
+Design di Base
+==============
 
-The Contract Application Binary Interface (ABI) is the standard way to interact with contracts in the Ethereum ecosystem, both
-from outside the blockchain and for contract-to-contract interaction. Data is encoded according to its type,
-as described in this specification.  The encoding is not self describing and thus requires a schema in order to decode.
+La Application Binary Interface (ABI) di un contratto è il modo standard per interagire con i contratti in Ethereum,
+sia dall'esterno della blockchain che per una interazione tra contratti. I dati sono codificati secondo i tipi 
+descritti in questa specifica. L'encoding non è autodescrittivo e necessita di uno schema per essere
+decodificato.
 
-We assume the interface functions of a contract are strongly typed, known at compilation time and static. We assume that all contracts will have the interface definitions of any contracts they call available at compile-time.
+Si assume ch ele interfacce delle funzioni di un contratto siano strongly typed, 
+note a tempo di complazione e statiche. Si assume che tutti i contratti abbiano la definizione delle interfacce
+di ogni contratto che chiameranno disponibili a tempo di compilazione.
 
-This specification does not address contracts whose interface is dynamic or otherwise known only at run-time.
+Questa specifica non riguarda i contratti la cui interfaccia è dinamica o
+nota solo in fase di esecuzione.
 
 .. _abi_function_selector:
 
-Function Selector
-=================
+Selettori di Funzione
+=====================
 
-The first four bytes of the call data for a function call specifies the function to be called. It is the
-first (left, high-order in big-endian) four bytes of the Keccak-256 (SHA-3) hash of the signature of the function. The signature is defined as the canonical expression of the basic prototype without data location specifier, i.e.
-the function name with the parenthesised list of parameter types. Parameter types are split by a single comma - no spaces are used.
+I primi quattro byte dei call data per una chiamata di funzione specificano la funzione da chiamare.
+Sono i primi (sinistra, high-order in big-endian) 4 byte dell'hash Keccak-256 (SHA-3) 
+della signature della fuznione. La signature è definita come il prototipo senza gli specificatori
+delle posizioni dei dati, i.e. il nome della fuznione con l'elenco dei tipi dei parametri tra parentesi.
+I tipi dei parametri vengono separati da virgole, non vengono utilizzati spazi.
 
 .. note::
-    The return type of a function is not part of this signature. In :ref:`Solidity's function overloading <overload-function>` return types are not considered. The reason is to keep function call resolution context-independent.
-    The :ref:`JSON description of the ABI<abi_json>` however contains both inputs and outputs.
+    Il tipi di ritorno di una fuznione non fa parte di questa signature. 
+    Nell':ref:`overloading di funzioni in Solidity <overload-function>` i tipi di ritorno non
+    sono considerati. Il motivo è quello di tenere la risoluzione della chiamata
+    di funzione indipendente dal contesto.
+    Tuttavia, la :ref:`descrizione JSON dell'ABI<abi_json>` contiene sia gli input che gli output.
 
-Argument Encoding
-=================
+Codifica degli Argomenti
+========================
 
-Starting from the fifth byte, the encoded arguments follow. This encoding is also used in other places, e.g. the return values and also event arguments are encoded in the same way, without the four bytes specifying the function.
+Partendo dal quinto byte, segue la codifica degli argomenti. 
+Questa codifica viene utilizzata anche in altre posizioni, e.g. i valori di ritorno 
+e anche gli argomenti degli eventi sono codificati nello stesso modo, 
+senza i quattro byte che specificano la funzione.
 
-Types
-=====
+Tipi
+====
 
-The following elementary types exist:
+Esistono i seguenti tipi elementari:
 
-- ``uint<M>``: unsigned integer type of ``M`` bits, ``0 < M <= 256``, ``M % 8 == 0``. e.g. ``uint32``, ``uint8``, ``uint256``.
+- ``uint<M>``: intero senza segno di ``M`` bit, ``0 < M <= 256``, ``M % 8 == 0``. e.g. ``uint32``, ``uint8``, ``uint256``.
 
-- ``int<M>``: two's complement signed integer type of ``M`` bits, ``0 < M <= 256``, ``M % 8 == 0``.
+- ``int<M>``: intero con segno in complemento a due di ``M`` bit, ``0 < M <= 256``, ``M % 8 == 0``.
 
-- ``address``: equivalent to ``uint160``, except for the assumed interpretation and language typing. For computing the function selector, ``address`` is used.
+- ``address``: equivalente a ``uint160``, fatta eccezione per l'interpretazione. Per calcolare il selettore della funzione viene usato ``address``.
 
-- ``uint``, ``int``: synonyms for ``uint256``, ``int256`` respectively. For computing the function selector, ``uint256`` and ``int256`` have to be used.
+- ``uint``, ``int``: sinonimo per ``uint256`` e ``int256`` rispettivamente. Per calcolare il selettore della funzione devono essere usati ``uint256`` e ``int256``.
 
-- ``bool``: equivalent to ``uint8`` restricted to the values 0 and 1. For computing the function selector, ``bool`` is used.
+- ``bool``: equivalente a ``uint8`` ristretto ai valori 0 a 1. Per calcolare il selettore della funzione viene usato ``bool``.
 
-- ``fixed<M>x<N>``: signed fixed-point decimal number of ``M`` bits, ``8 <= M <= 256``, ``M % 8 ==0``, and ``0 < N <= 80``, which denotes the value ``v`` as ``v / (10 ** N)``.
+- ``fixed<M>x<N>``: numero decimale con segno fixed-point di ``M`` bit, ``8 <= M <= 256``, ``M % 8 == 0``, e ``0 < N <= 80``, che rappresenta il numero ``v`` come ``v / (10 ** N)``.
 
-- ``ufixed<M>x<N>``: unsigned variant of ``fixed<M>x<N>``.
+- ``ufixed<M>x<N>``: variante senza segno di ``fixed<M>x<N>``.
 
-- ``fixed``, ``ufixed``: synonyms for ``fixed128x18``, ``ufixed128x18`` respectively. For computing the function selector, ``fixed128x18`` and ``ufixed128x18`` have to be used.
+- ``fixed``, ``ufixed``: sinonimo per ``fixed128x18`` e ``ufixed128x18`` rispettivamente. Per calcolare il selettore di funzione devono essere usati ``fixed128x18`` e ``ufixed128x18``.
 
-- ``bytes<M>``: binary type of ``M`` bytes, ``0 < M <= 32``.
+- ``bytes<M>``: tipo binario di ``M`` byte, ``0 < M <= 32``.
 
-- ``function``: an address (20 bytes) followed by a function selector (4 bytes). Encoded identical to ``bytes24``.
+- ``function``: un indirizzo (20 byte) seguito da un selettore di funzione (4 byte). Stessa codifica di ``bytes24``.
 
-The following (fixed-size) array type exists:
+Esistono i seguenti tipi di array di dimensione fissata:
 
-- ``<type>[M]``: a fixed-length array of ``M`` elements, ``M >= 0``, of the given type.
+- ``<type>[M]``: array di lunghezza fissata di ``M`` elementi, ``M >= 0``, del tipo specificato.
 
-The following non-fixed-size types exist:
+Esistono i seguenti tipi di dato di dimensione non fissata:
 
-- ``bytes``: dynamic sized byte sequence.
+- ``bytes``: sequenza dinamica di byte.
 
-- ``string``: dynamic sized unicode string assumed to be UTF-8 encoded.
+- ``string``: stringa unicode di codifica UTF-8 di dimensione dinamica.
 
-- ``<type>[]``: a variable-length array of elements of the given type.
+- ``<type>[]``: array di elementi del tipo dato di lunghezza variabile.
 
-Types can be combined to a tuple by enclosing them inside parentheses, separated by commas:
+I tipi possono essere racchiusi tra parentesi e combinati in una tupla separati da virgole:
 
-- ``(T1,T2,...,Tn)``: tuple consisting of the types ``T1``, ..., ``Tn``, ``n >= 0``
+- ``(T1,T2,...,Tn)``: tupla composta dai tipi ``T1``, ..., ``Tn``, ``n >= 0``
 
-It is possible to form tuples of tuples, arrays of tuples and so on.  It is also possible to form zero-tuples (where ``n == 0``).
+È	possibile formare tuple di tuple, array di tuple eccetera. È anche possibile formare tuple di dimensione 0 (dove ``n == 0``).
 
-Mapping Solidity to ABI types
------------------------------
+Mappatura tra Solidity a Tipi ABI 
+---------------------------------
 
-Solidity supports all the types presented above with the same names with the
-exception of tuples. On the other hand, some Solidity types are not supported
-by the ABI.  The following table shows on the left column Solidity types that
-are not part of the ABI, and on the right column the ABI types that represent
-them.
+Solidity supporta tutti i tipi presentati sopra con gli stessi nomi ad eccezione delle tuple. 
+Tuttavia, alcuni tipi di Solidity non sono supportati dall'ABI. 
+La tabella seguente mostra nella colonna di sinistra i tipi di Solidity che non fanno parte 
+dell'ABI e nella colonna di destra i tipi di ABI che li rappresentano.
 
 +-------------------------------+-----------------------------------------------------------------------------+
 |      Solidity                 |                                           ABI                               |
@@ -94,121 +105,120 @@ them.
 +-------------------------------+-----------------------------------------------------------------------------+
 |:ref:`contract<contracts>`     |``address``                                                                  |
 +-------------------------------+-----------------------------------------------------------------------------+
-|:ref:`enum<enums>`             |smallest ``uint`` type that is large enough to hold all values               |
+|:ref:`enum<enums>`             |Il più piccolo tipo ``uint`` grande abbastanza per contenere tutti i valori. |
 |                               |                                                                             |
-|                               |For example, an ``enum`` of 255 values or less is mapped to ``uint8`` and    |
-|                               |an ``enum`` of 256 values is mapped to ``uint16``.                           |
+|                               |Per esempio, un ``enum`` di 255 valori o meno è mappato in un ``uint8`` e    |
+|                               |un ``enum`` di 256 valori è mappato in un ``uint16``.                        |
 +-------------------------------+-----------------------------------------------------------------------------+
 |:ref:`struct<structs>`         |``tuple``                                                                    |
 +-------------------------------+-----------------------------------------------------------------------------+
 
-Design Criteria for the Encoding
-================================
+Criteri di Progettazione per la Codifica
+========================================
 
-The encoding is designed to have the following properties, which are especially useful if some arguments are nested arrays:
+L'encoding è progettato per avere le seguenti proprietà che sono particolarmete utili se 
+alcuni argomenti sono array innestati.
 
-  1. The number of reads necessary to access a value is at most the depth of the value inside the argument array structure, i.e. four reads are needed to retrieve ``a_i[k][l][r]``. In a previous version of the ABI, the number of reads scaled linearly with the total number of dynamic parameters in the worst case.
+  1. Il numero di letture necessarie per accedere a un valore è al massimo la profondità del valore all'interno della struttura dell'array di argomenti, i.e. sono necessarie quattro letture per recuperare ``a_i[k][l][r]``. In una versione precedente dell'ABI, il numero di letture scalava, nel caso peggiore, in maniera lineare con il numero totale di parametri dinamici.
+  2. I dati di una variabile o di un elemento array non sono intercalati con altri dati e sono trasferibile, ovvero utilizzano solo "indirizzi" relativi.
 
-  2. The data of a variable or array element is not interleaved with other data and it is relocatable, i.e. it only uses relative "addresses".
 
+Specifiche Formali della Codifica
+=================================
 
-Formal Specification of the Encoding
-====================================
+Vengono distinti tipi static e dinamici. I tipi statici sono codificati in-place mentre i tipi dinamici sono codificati in una locazione separata dopo il blocco corrente.
 
-We distinguish static and dynamic types. Static types are encoded in-place and dynamic types are encoded at a separately allocated location after the current block.
-
-**Definition:** The following types are called "dynamic":
+**Definizione:** i seguenti tipi sono definiti "dinamici (dynamic)":
 
 * ``bytes``
 * ``string``
-* ``T[]`` for any ``T``
-* ``T[k]`` for any dynamic ``T`` and any ``k >= 0``
-* ``(T1,...,Tk)`` if ``Ti`` is dynamic for some ``1 <= i <= k``
+* ``T[]`` per ogni ``T``
+* ``T[k]`` per ogni dynamic ``T`` ed ogni ``k >= 0``
+* ``(T1,...,Tk)`` se ``Ti`` è dinamico per un qualche ``1 <= i <= k``
 
-All other types are called "static".
+Tutti gli altri tipi sono considerati "statici (static)".
 
-**Definition:** ``len(a)`` is the number of bytes in a binary string ``a``.
-The type of ``len(a)`` is assumed to be ``uint256``.
+**Definizione:** ``len(a)`` è il numero di byte in una stringa binaria ``a``.
+Il tipo di ``len(a)`` si suppone che sia ``uint256``.
 
-We define ``enc``, the actual encoding, as a mapping of values of the ABI types to binary strings such
-that ``len(enc(X))`` depends on the value of ``X`` if and only if the type of ``X`` is dynamic.
+Viene definito ``enc``, la codifica reale, come un mapping di valori dai tipi dell'ABI a stringhe binarie tale che
+``len(enc(X))`` dipende dal valore di ``X`` se e solo se il tipo di ``X`` è dinamico.
 
-**Definition:** For any ABI value ``X``, we recursively define ``enc(X)``, depending
-on the type of ``X`` being
+**Definizione:** Per ogni valore ``X`` dell'ABI, viene definito ricorsivamente ``enc(X)``, dipendentemente 
+dal tipo di ``X`` come:
 
-- ``(T1,...,Tk)`` for ``k >= 0`` and any types ``T1``, ..., ``Tk``
+- ``(T1,...,Tk)`` per ``k >= 0`` ed ogni tipo ``T1``, ..., ``Tk``
 
   ``enc(X) = head(X(1)) ... head(X(k)) tail(X(1)) ... tail(X(k))``
 
-  where ``X = (X(1), ..., X(k))`` and
-  ``head`` and ``tail`` are defined for ``Ti`` being a static type as
+  dove ``X = (X(1), ..., X(k))`` e
+  ``head`` e ``tail`` sono definiti per ``Ti`` come tipi statici come
 
-    ``head(X(i)) = enc(X(i))`` and ``tail(X(i)) = ""`` (the empty string)
+    ``head(X(i)) = enc(X(i))`` e ``tail(X(i)) = ""`` (stringa vuota)
 
-  and as
+  e come
 
     ``head(X(i)) = enc(len(head(X(1)) ... head(X(k)) tail(X(1)) ... tail(X(i-1)) ))``
     ``tail(X(i)) = enc(X(i))``
 
-  otherwise, i.e. if ``Ti`` is a dynamic type.
+  altrimenti, i.e. se ``Ti`` è un tipo dinamico.
 
-  Note that in the dynamic case, ``head(X(i))`` is well-defined since the lengths of
-  the head parts only depend on the types and not the values. Its value is the offset
-  of the beginning of ``tail(X(i))`` relative to the start of ``enc(X)``.
+  Notare che nel caso di tipo dinamico, ``head(X(i))`` è well-defined dato che 
+  la lunghezza della parte di heads dipende solamente dal tipo e non dal valore.
+  Il suo valore è l'offset all'inizio di ``tail(X(i))`` relativo all'inizio di ``enc(X)``.
 
-- ``T[k]`` for any ``T`` and ``k``:
+- ``T[k]`` per ogni ``T`` e ``k``:
 
   ``enc(X) = enc((X[0], ..., X[k-1]))``
 
-  i.e. it is encoded as if it were a tuple with ``k`` elements
-  of the same type.
+  i.e. è codificato come se fosse una tupla con ``k`` elementi dello stesso tipo.
 
-- ``T[]`` where ``X`` has ``k`` elements (``k`` is assumed to be of type ``uint256``):
+- ``T[]`` dove ``X`` ha ``k`` elementi (``k`` si suppone sia di tipo ``uint256``):
 
   ``enc(X) = enc(k) enc([X[0], ..., X[k-1]])``
 
-  i.e. it is encoded as if it were an array of static size ``k``, prefixed with
-  the number of elements.
+  i.e. è codificato come se fosse un array di dimensione statica ``k``, con un prefisso 
+  del numero di elementi.
 
-- ``bytes``, of length ``k`` (which is assumed to be of type ``uint256``):
+- ``bytes``, di lunghezza ``k`` (si suppone sia di tipo ``uint256``):
 
-  ``enc(X) = enc(k) pad_right(X)``, i.e. the number of bytes is encoded as a
-  ``uint256`` followed by the actual value of ``X`` as a byte sequence, followed by
-  the minimum number of zero-bytes such that ``len(enc(X))`` is a multiple of 32.
+  ``enc(X) = enc(k) pad_right(X)``, i.e. il numero di byte è codificato come
+  ``uint256`` seguito dal reale valore di ``X`` come sequenza di byte, seguito dal minimo
+  numero di byte a zero tale che ``len(enc(X))`` sia multiplo di 32.
 
 - ``string``:
 
-  ``enc(X) = enc(enc_utf8(X))``, i.e. ``X`` is utf-8 encoded and this value is interpreted as of ``bytes`` type and encoded further. Note that the length used in this subsequent encoding is the number of bytes of the utf-8 encoded string, not its number of characters.
+  ``enc(X) = enc(enc_utf8(X))``, i.e. ``X`` ha encoding utf-8 e questo valore viene interpretato come se fosse di tipo ``bytes`` e codificato nuovamente. Si noti che la lunghezza utilizzata in questa codifica successiva è il numero di byte della stringa codificata utf-8, non il suo numero di caratteri.
 
-- ``uint<M>``: ``enc(X)`` is the big-endian encoding of ``X``, padded on the higher-order (left) side with zero-bytes such that the length is 32 bytes.
-- ``address``: as in the ``uint160`` case
-- ``int<M>``: ``enc(X)`` is the big-endian two's complement encoding of ``X``, padded on the higher-order (left) side with ``0xff`` for negative ``X`` and with zero bytes for positive ``X`` such that the length is 32 bytes.
-- ``bool``: as in the ``uint8`` case, where ``1`` is used for ``true`` and ``0`` for ``false``
-- ``fixed<M>x<N>``: ``enc(X)`` is ``enc(X * 10**N)`` where ``X * 10**N`` is interpreted as a ``int256``.
-- ``fixed``: as in the ``fixed128x18`` case
-- ``ufixed<M>x<N>``: ``enc(X)`` is ``enc(X * 10**N)`` where ``X * 10**N`` is interpreted as a ``uint256``.
-- ``ufixed``: as in the ``ufixed128x18`` case
-- ``bytes<M>``: ``enc(X)`` is the sequence of bytes in ``X`` padded with trailing zero-bytes to a length of 32 bytes.
+- ``uint<M>``: ``enc(X)`` è l'encoding big-endian di ``X``, con padding a sinistra con zero-byte tale che la lunghezza sia 32 byte
+- ``address``: come nel caso di ``uint160``
+- ``int<M>``: ``enc(X)`` big-endian complemento a due della codifica di ``X``, con padding a sinistra con ``0xff`` per valori negativi di ``X`` e con zero per valori positivi ``X`` tale che la lunghezza sia 32 byte
+- ``bool``: come nel caso di ``uint8``, dove ``1`` è usato per ``true`` e ``0`` per ``false``
+- ``fixed<M>x<N>``: ``enc(X)`` è ``enc(X * 10**N)`` dove ``X * 10**N`` è interpretato come ``int256``
+- ``fixed``: come nel caso di ``fixed128x18``
+- ``ufixed<M>x<N>``: ``enc(X)`` è ``enc(X * 10**N)`` dove ``X * 10**N`` è interpretato come un ``uint256``
+- ``ufixed``: come nel caso di ``ufixed128x18``
+- ``bytes<M>``: ``enc(X)`` sequenza di byte in ``X`` con padding di trailing zero-bytes per arrivare ad una lunghezza di 32 byte.
 
-Note that for any ``X``, ``len(enc(X))`` is a multiple of 32.
+Notare che per ogni ``X``, ``len(enc(X))`` è un multiplo di 32
 
-Function Selector and Argument Encoding
-=======================================
+Selettore di Funzione e Argument Encoding
+=========================================
 
-All in all, a call to the function ``f`` with parameters ``a_1, ..., a_n`` is encoded as
+Una chiamata alla funzione ``f`` con parametri ``a_1, ..., a_n`` è codificata come
 
   ``function_selector(f) enc((a_1, ..., a_n))``
 
-and the return values ``v_1, ..., v_k`` of ``f`` are encoded as
+è i valori di ritorno ``v_1, ..., v_k`` of ``f`` sono codificati come
 
   ``enc((v_1, ..., v_k))``
 
-i.e. the values are combined into a tuple and encoded.
+i.e. i valori sono combinati in una tupla e codificati.
 
-Examples
-========
+Esempi
+======
 
-Given the contract:
+Dato il contratto:
 
 ::
 
@@ -222,60 +232,62 @@ Given the contract:
     }
 
 
-Thus for our ``Foo`` example if we wanted to call ``baz`` with the parameters ``69`` and ``true``, we would pass 68 bytes total, which can be broken down into:
+Per l'esempio ``Foo`` se si vuole chiamare ``baz`` con i parametri ``69`` e ``true``, verranno passati 68 bytes in totale, che possono essere suddivisi in:
 
-- ``0xcdcd77c0``: the Method ID. This is derived as the first 4 bytes of the Keccak hash of the ASCII form of the signature ``baz(uint32,bool)``.
-- ``0x0000000000000000000000000000000000000000000000000000000000000045``: the first parameter, a uint32 value ``69`` padded to 32 bytes
-- ``0x0000000000000000000000000000000000000000000000000000000000000001``: the second parameter - boolean ``true``, padded to 32 bytes
+- ``0xcdcd77c0``: Method ID. Derivato dai primi 4 byte dell'hash Keccak del formato ASCII della signature ``baz(uint32,bool)``
+- ``0x0000000000000000000000000000000000000000000000000000000000000045``: primo parametro, valore uint32 ``69`` con padding a 32 byte
+- ``0x0000000000000000000000000000000000000000000000000000000000000001``: secondo parametro - boolean ``true``, con padding a 32 byte
 
-In total:
+Complessivamente:
 
 .. code-block:: none
 
     0xcdcd77c000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000001
 
-It returns a single ``bool``. If, for example, it were to return ``false``, its output would be the single byte array ``0x0000000000000000000000000000000000000000000000000000000000000000``, a single bool.
+Restituisce un singolo ``bool``. Se, per esempio, il valore di ritorno è ``false``, l'output è il singolo array di byte ``0x0000000000000000000000000000000000000000000000000000000000000000``, un singolo bool.
 
-If we wanted to call ``bar`` with the argument ``["abc", "def"]``, we would pass 68 bytes total, broken down into:
+Se si vuole chiamare ``bar`` con gli argomenti ``["abc", "def"]``, si devono passare 68 byte in totale, suddivisi in:
 
-- ``0xfce353f6``: the Method ID. This is derived from the signature ``bar(bytes3[2])``.
-- ``0x6162630000000000000000000000000000000000000000000000000000000000``: the first part of the first parameter, a ``bytes3`` value ``"abc"`` (left-aligned).
-- ``0x6465660000000000000000000000000000000000000000000000000000000000``: the second part of the first parameter, a ``bytes3`` value ``"def"`` (left-aligned).
+- ``0xfce353f6``: Method ID. Derivato dalla signature ``bar(bytes3[2])``.
+- ``0x6162630000000000000000000000000000000000000000000000000000000000``: prima parte del primo parametro, valore ``bytes3`` di ``"abc"`` (left-aligned).
+- ``0x6465660000000000000000000000000000000000000000000000000000000000``: the second part of the first parameter, valore ``bytes3`` di ``"def"`` (left-aligned).
 
-In total:
+Complessivamente:
 
 .. code-block:: none
 
     0xfce353f661626300000000000000000000000000000000000000000000000000000000006465660000000000000000000000000000000000000000000000000000000000
 
-If we wanted to call ``sam`` with the arguments ``"dave"``, ``true`` and ``[1,2,3]``, we would pass 292 bytes total, broken down into:
+Se si vuole chiamare ``sam`` con gli argomenti ``"dave"``, ``true`` e ``[1,2,3]``, si devono passare 292 byte in totale, suddivisi in:
 
-- ``0xa5643bf2``: the Method ID. This is derived from the signature ``sam(bytes,bool,uint256[])``. Note that ``uint`` is replaced with its canonical representation ``uint256``.
-- ``0x0000000000000000000000000000000000000000000000000000000000000060``: the location of the data part of the first parameter (dynamic type), measured in bytes from the start of the arguments block. In this case, ``0x60``.
-- ``0x0000000000000000000000000000000000000000000000000000000000000001``: the second parameter: boolean true.
-- ``0x00000000000000000000000000000000000000000000000000000000000000a0``: the location of the data part of the third parameter (dynamic type), measured in bytes. In this case, ``0xa0``.
-- ``0x0000000000000000000000000000000000000000000000000000000000000004``: the data part of the first argument, it starts with the length of the byte array in elements, in this case, 4.
-- ``0x6461766500000000000000000000000000000000000000000000000000000000``: the contents of the first argument: the UTF-8 (equal to ASCII in this case) encoding of ``"dave"``, padded on the right to 32 bytes.
-- ``0x0000000000000000000000000000000000000000000000000000000000000003``: the data part of the third argument, it starts with the length of the array in elements, in this case, 3.
-- ``0x0000000000000000000000000000000000000000000000000000000000000001``: the first entry of the third parameter.
-- ``0x0000000000000000000000000000000000000000000000000000000000000002``: the second entry of the third parameter.
-- ``0x0000000000000000000000000000000000000000000000000000000000000003``: the third entry of the third parameter.
+- ``0xa5643bf2``: Method ID. Derivato dalla signature ``sam(bytes,bool,uint256[])``. Si noti che ``uint`` è sostituito dalla rappresentazione ``uint256``.
+- ``0x0000000000000000000000000000000000000000000000000000000000000060``: posizione della parte di dati del primo parametro (tipo dynamic), misurata in byte dell'inizio del blocco con gli argomenti. In questo caso, ``0x60``
+- ``0x0000000000000000000000000000000000000000000000000000000000000001``: secondo parametro: boolean true.
+- ``0x00000000000000000000000000000000000000000000000000000000000000a0``: posizione della parte di dati del terzo parametro (tipo dynamic), misurata in byte. In questo caso, ``0xa0``
+- ``0x0000000000000000000000000000000000000000000000000000000000000004``: parte di dati del primo argomento, inizia con la lunghezza dell'array di byte, in questo caso 4
+- ``0x6461766500000000000000000000000000000000000000000000000000000000``: contenuto del primo argomento: codifica UTF-8 (uguale ad ASCII in questo caso) di ``"dave"``, con padding a destra a 32 byte
+- ``0x0000000000000000000000000000000000000000000000000000000000000003``: parte di dati del terzo argomento, inizia con la lunghezza dell'array, in questo caso 3
+- ``0x0000000000000000000000000000000000000000000000000000000000000001``: prima entry del terzo parametro.
+- ``0x0000000000000000000000000000000000000000000000000000000000000002``: seconda entry del terzo parametro.
+- ``0x0000000000000000000000000000000000000000000000000000000000000003``: terza entry del terzo parametro.
 
-In total:
+Complessivamente:
 
 .. code-block:: none
 
     0xa5643bf20000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000464617665000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000003
 
-Use of Dynamic Types
-====================
+Utilizzo dei Tipi Dinamici
+==========================
 
-A call to a function with the signature ``f(uint,uint32[],bytes10,bytes)`` with values ``(0x123, [0x456, 0x789], "1234567890", "Hello, world!")`` is encoded in the following way:
+Una chiamata ad una funzione con signature ``f(uint,uint32[],bytes10,bytes)`` con valori ``(0x123, [0x456, 0x789], "1234567890", "Hello, world!")`` viene codificata nel seguente modo:
 
-We take the first four bytes of ``sha3("f(uint256,uint32[],bytes10,bytes)")``, i.e. ``0x8be65246``.
-Then we encode the head parts of all four arguments. For the static types ``uint256`` and ``bytes10``, these are directly the values we want to pass, whereas for the dynamic types ``uint32[]`` and ``bytes``, we use the offset in bytes to the start of their data area, measured from the start of the value encoding (i.e. not counting the first four bytes containing the hash of the function signature). These are:
+Vengono selezionati i primi 4 byte ``sha3("f(uint256,uint32[],bytes10,bytes)")``, i.e. ``0x8be65246``.
+Successivamente viene codificata la parte di head di tutti i 4 argomenti. 
+I tipi statici ``uint256`` e ``bytes10`` sono direttamente i valori che si vogliono passare, mentre per i tipi dinamici ``uint32[]`` e ``bytes`` viene utilizzato l'offset in bytes dall'inizio dell'area di dati, 
+misurato dall'inizio della codifica del valore (i.e. non considerando i primi 4 byte contenenti l'hash della signature della funzione). Questi sono:
 
- - ``0x0000000000000000000000000000000000000000000000000000000000000123`` (``0x123`` padded to 32 bytes)
+ - ``0x0000000000000000000000000000000000000000000000000000000000000123`` (``0x123`` con padding a 32 byte)
  - ``0x0000000000000000000000000000000000000000000000000000000000000080`` (offset to start of data part of second parameter, 4*32 bytes, exactly the size of the head part)
  - ``0x3132333435363738393000000000000000000000000000000000000000000000`` (``"1234567890"`` padded to 32 bytes on the right)
  - ``0x00000000000000000000000000000000000000000000000000000000000000e0`` (offset to start of data part of fourth parameter = offset to start of data part of first dynamic parameter + size of data part of first dynamic parameter = 4\*32 + 3\*32 (see below))
