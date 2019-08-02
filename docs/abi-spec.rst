@@ -11,11 +11,11 @@ Design di Base
 
 La Application Binary Interface (ABI) di un contratto è il modo standard per interagire con i contratti in Ethereum,
 sia dall'esterno della blockchain che per una interazione tra contratti. I dati sono codificati secondo i tipi 
-descritti in questa specifica. L'encoding non è autodescrittivo e necessita di uno schema per essere
+descritti in questa specifica. L'codifica non è autodescrittivo e necessita di uno schema per essere
 decodificato.
 
-Si assume ch ele interfacce delle funzioni di un contratto siano strongly typed, 
-note a tempo di complazione e statiche. Si assume che tutti i contratti abbiano la definizione delle interfacce
+Si assume che le interfacce delle funzioni di un contratto siano strongly typed, 
+note a tempo di compilazionee statiche. Si assume che tutti i contratti abbiano la definizione delle interfacce
 di ogni contratto che chiameranno disponibili a tempo di compilazione.
 
 Questa specifica non riguarda i contratti la cui interfaccia è dinamica o
@@ -28,12 +28,12 @@ Selettori di Funzione
 
 I primi quattro byte dei call data per una chiamata di funzione specificano la funzione da chiamare.
 Sono i primi (sinistra, high-order in big-endian) 4 byte dell'hash Keccak-256 (SHA-3) 
-della signature della fuznione. La signature è definita come il prototipo senza gli specificatori
-delle posizioni dei dati, i.e. il nome della fuznione con l'elenco dei tipi dei parametri tra parentesi.
+della signature della funzione. La signature è definita come il prototipo senza gli specificatori
+delle posizioni dei dati, i.e. il nome della funzione con l'elenco dei tipi dei parametri tra parentesi.
 I tipi dei parametri vengono separati da virgole, non vengono utilizzati spazi.
 
 .. note::
-    Il tipi di ritorno di una fuznione non fa parte di questa signature. 
+    Il tipi di ritorno di una funzione non fa parte di questa signature. 
     Nell':ref:`overloading di funzioni in Solidity <overload-function>` i tipi di ritorno non
     sono considerati. Il motivo è quello di tenere la risoluzione della chiamata
     di funzione indipendente dal contesto.
@@ -93,7 +93,7 @@ I tipi possono essere racchiusi tra parentesi e combinati in una tupla separati 
 Mappatura tra Solidity a Tipi ABI 
 ---------------------------------
 
-Solidity supporta tutti i tipi presentati sopra con gli stessi nomi ad eccezione delle tuple. 
+Solidity supportatutti i tipi presentati sopra con gli stessi nomi ad eccezione delle tuple. 
 Tuttavia, alcuni tipi di Solidity non sono supportati dall'ABI. 
 La tabella seguente mostra nella colonna di sinistra i tipi di Solidity che non fanno parte 
 dell'ABI e nella colonna di destra i tipi di ABI che li rappresentano.
@@ -116,7 +116,7 @@ dell'ABI e nella colonna di destra i tipi di ABI che li rappresentano.
 Criteri di Progettazione per la Codifica
 ========================================
 
-L'encoding è progettato per avere le seguenti proprietà che sono particolarmete utili se 
+La codifica è progettato per avere le seguenti proprietà che sono particolarmenteutili se 
 alcuni argomenti sono array innestati.
 
   1. Il numero di letture necessarie per accedere a un valore è al massimo la profondità del valore all'interno della struttura dell'array di argomenti, i.e. sono necessarie quattro letture per recuperare ``a_i[k][l][r]``. In una versione precedente dell'ABI, il numero di letture scalava, nel caso peggiore, in maniera lineare con il numero totale di parametri dinamici.
@@ -188,9 +188,9 @@ dal tipo di ``X`` come:
 
 - ``string``:
 
-  ``enc(X) = enc(enc_utf8(X))``, i.e. ``X`` ha encoding utf-8 e questo valore viene interpretato come se fosse di tipo ``bytes`` e codificato nuovamente. Si noti che la lunghezza utilizzata in questa codifica successiva è il numero di byte della stringa codificata utf-8, non il suo numero di caratteri.
+  ``enc(X) = enc(enc_utf8(X))``, i.e. ``X`` ha codifica utf-8 e questo valore viene interpretato come se fosse di tipo ``bytes`` e codificato nuovamente. Si noti che la lunghezza utilizzata in questa codifica successiva è il numero di byte della stringa codificata utf-8, non il suo numero di caratteri.
 
-- ``uint<M>``: ``enc(X)`` è l'encoding big-endian di ``X``, con padding a sinistra con zero-byte tale che la lunghezza sia 32 byte
+- ``uint<M>``: ``enc(X)`` è la codifica big-endian di ``X``, con padding a sinistra con zero-byte tale che la lunghezza sia 32 byte
 - ``address``: come nel caso di ``uint160``
 - ``int<M>``: ``enc(X)`` big-endian complemento a due della codifica di ``X``, con padding a sinistra con ``0xff`` per valori negativi di ``X`` e con zero per valori positivi ``X`` tale che la lunghezza sia 32 byte
 - ``bool``: come nel caso di ``uint8``, dove ``1`` è usato per ``true`` e ``0`` per ``false``
@@ -202,8 +202,8 @@ dal tipo di ``X`` come:
 
 Notare che per ogni ``X``, ``len(enc(X))`` è un multiplo di 32
 
-Selettore di Funzione e Argument Encoding
-=========================================
+Selettore di Funzione e Codifica degli Argomenti
+================================================
 
 Una chiamata alla funzione ``f`` con parametri ``a_1, ..., a_n`` è codificata come
 
@@ -288,22 +288,22 @@ I tipi statici ``uint256`` e ``bytes10`` sono direttamente i valori che si vogli
 misurato dall'inizio della codifica del valore (i.e. non considerando i primi 4 byte contenenti l'hash della signature della funzione). Questi sono:
 
  - ``0x0000000000000000000000000000000000000000000000000000000000000123`` (``0x123`` con padding a 32 byte)
- - ``0x0000000000000000000000000000000000000000000000000000000000000080`` (offset to start of data part of second parameter, 4*32 bytes, exactly the size of the head part)
- - ``0x3132333435363738393000000000000000000000000000000000000000000000`` (``"1234567890"`` padded to 32 bytes on the right)
- - ``0x00000000000000000000000000000000000000000000000000000000000000e0`` (offset to start of data part of fourth parameter = offset to start of data part of first dynamic parameter + size of data part of first dynamic parameter = 4\*32 + 3\*32 (see below))
+ - ``0x0000000000000000000000000000000000000000000000000000000000000080`` (offset dall'inizio della parte di dati del secondo parametro, 4*32 byte, esattamente la dimensione della parte di head)
+ - ``0x3132333435363738393000000000000000000000000000000000000000000000`` (``"1234567890"`` con padding a 32 byte a destra)
+ - ``0x00000000000000000000000000000000000000000000000000000000000000e0`` (offset dall'inizio della parte di dati del quarto parametro = offset offset dall'inizio del primo parametro dynamic + dimensione della parte di dati del primo parametro dynamic = 4\*32 + 3\*32 (vedere sotto))
 
-After this, the data part of the first dynamic argument, ``[0x456, 0x789]`` follows:
+Dopo questa sezione segue la parte di dati del primo argomento dinamico ``[0x456, 0x789]``:
 
- - ``0x0000000000000000000000000000000000000000000000000000000000000002`` (number of elements of the array, 2)
- - ``0x0000000000000000000000000000000000000000000000000000000000000456`` (first element)
- - ``0x0000000000000000000000000000000000000000000000000000000000000789`` (second element)
+ - ``0x0000000000000000000000000000000000000000000000000000000000000002`` (numero di elementi nell'array, 2)
+ - ``0x0000000000000000000000000000000000000000000000000000000000000456`` (primo elemento)
+ - ``0x0000000000000000000000000000000000000000000000000000000000000789`` (secondo elemento)
 
-Finally, we encode the data part of the second dynamic argument, ``"Hello, world!"``:
+Infine viene codificata la parte di dati del secondo argomento dinamico, ``"Hello, world!"``:
 
- - ``0x000000000000000000000000000000000000000000000000000000000000000d`` (number of elements (bytes in this case): 13)
- - ``0x48656c6c6f2c20776f726c642100000000000000000000000000000000000000`` (``"Hello, world!"`` padded to 32 bytes on the right)
+ - ``0x000000000000000000000000000000000000000000000000000000000000000d`` (numero di elementi (byte in questo caso): 13)
+ - ``0x48656c6c6f2c20776f726c642100000000000000000000000000000000000000`` (``"Hello, world!"`` con padding a destra di 32 byte)
 
-All together, the encoding is (newline after function selector and each 32-bytes for clarity):
+Complessivamente, la codifica è (nuova linea dopo ogni slettore di funzione ed ogni 32 byte per chiarezza):
 
 .. code-block:: none
 
@@ -318,181 +318,188 @@ All together, the encoding is (newline after function selector and each 32-bytes
       000000000000000000000000000000000000000000000000000000000000000d
       48656c6c6f2c20776f726c642100000000000000000000000000000000000000
 
-Let us apply the same principle to encode the data for a function with a signature ``g(uint[][],string[])`` with values ``([[1, 2], [3]], ["one", "two", "three"])`` but start from the most atomic parts of the encoding:
+Applicando lo stesso principio per codificare i dati per la funzione con signature ``g(uint[][],string[])`` 
+con valori ``([[1, 2], [3]], ["one", "two", "three"])`` si ottiene:
 
-First we encode the length and data of the first embedded dynamic array ``[1, 2]`` of the first root array ``[[1, 2], [3]]``:
+Prima si codifica la lunghezza e i dati del primo array dinamico ``[1, 2]`` del primo array ``[[1, 2], [3]]``:
 
- - ``0x0000000000000000000000000000000000000000000000000000000000000002`` (number of elements in the first array, 2; the elements themselves are ``1``  and ``2``)
- - ``0x0000000000000000000000000000000000000000000000000000000000000001`` (first element)
- - ``0x0000000000000000000000000000000000000000000000000000000000000002`` (second element)
+ - ``0x0000000000000000000000000000000000000000000000000000000000000002`` (numero di elementi nel primo array, 2; gli elementi sono ``1`` e ``2``)
+ - ``0x0000000000000000000000000000000000000000000000000000000000000001`` (primo elemento)
+ - ``0x0000000000000000000000000000000000000000000000000000000000000002`` (secondo elemento)
 
-Then we encode the length and data of the second embedded dynamic array ``[3]`` of the first root array ``[[1, 2], [3]]``:
+Successivamente si codifica la lunghezza e i dati del secondo array dinamico ``[3]`` del primo array ``[[1, 2], [3]]``:
 
- - ``0x0000000000000000000000000000000000000000000000000000000000000001`` (number of elements in the second array, 1; the element is ``3``)
- - ``0x0000000000000000000000000000000000000000000000000000000000000003`` (first element)
+ - ``0x0000000000000000000000000000000000000000000000000000000000000001`` (numero di elementi nel secondo array, 1; l'elemento è ``3``)
+ - ``0x0000000000000000000000000000000000000000000000000000000000000003`` (primo elemento)
 
-Then we need to find the offsets ``a`` and ``b`` for their respective dynamic arrays  ``[1, 2]`` and ``[3]``. To calculate the offsets we can take a look at the encoded data of the first root array ``[[1, 2], [3]]`` enumerating each line in the encoding:
-
-.. code-block:: none
-
-    0 - a                                                                - offset of [1, 2]
-    1 - b                                                                - offset of [3]
-    2 - 0000000000000000000000000000000000000000000000000000000000000002 - count for [1, 2]
-    3 - 0000000000000000000000000000000000000000000000000000000000000001 - encoding of 1
-    4 - 0000000000000000000000000000000000000000000000000000000000000002 - encoding of 2
-    5 - 0000000000000000000000000000000000000000000000000000000000000001 - count for [3]
-    6 - 0000000000000000000000000000000000000000000000000000000000000003 - encoding of 3
-
-Offset ``a`` points to the start of the content of the array ``[1, 2]`` which is line 2 (64 bytes); thus ``a = 0x0000000000000000000000000000000000000000000000000000000000000040``.
-
-Offset ``b`` points to the start of the content of the array ``[3]`` which is line 5 (160 bytes); thus ``b = 0x00000000000000000000000000000000000000000000000000000000000000a0``.
-
-
-Then we encode the embedded strings of the second root array:
-
- - ``0x0000000000000000000000000000000000000000000000000000000000000003`` (number of characters in word ``"one"``)
- - ``0x6f6e650000000000000000000000000000000000000000000000000000000000`` (utf8 representation of word ``"one"``)
- - ``0x0000000000000000000000000000000000000000000000000000000000000003`` (number of characters in word ``"two"``)
- - ``0x74776f0000000000000000000000000000000000000000000000000000000000`` (utf8 representation of word ``"two"``)
- - ``0x0000000000000000000000000000000000000000000000000000000000000005`` (number of characters in word ``"three"``)
- - ``0x7468726565000000000000000000000000000000000000000000000000000000`` (utf8 representation of word ``"three"``)
-
-In parallel to the first root array, since strings are dynamic elements we need to find their offsets ``c``, ``d`` and ``e``:
+Poi bisogna ricavare l'offset ``a`` e ``b`` per i rispettivi array dinamici  ``[1, 2]`` e ``[3]``. 
+Per calcolare gli offset, si può analizzare la parte codificata del del primo array ``[[1, 2], [3]]`` 
+enumerando ogni linea nella codifica:
 
 .. code-block:: none
 
-    0 - c                                                                - offset for "one"
-    1 - d                                                                - offset for "two"
-    2 - e                                                                - offset for "three"
-    3 - 0000000000000000000000000000000000000000000000000000000000000003 - count for "one"
-    4 - 6f6e650000000000000000000000000000000000000000000000000000000000 - encoding of "one"
-    5 - 0000000000000000000000000000000000000000000000000000000000000003 - count for "two"
-    6 - 74776f0000000000000000000000000000000000000000000000000000000000 - encoding of "two"
-    7 - 0000000000000000000000000000000000000000000000000000000000000005 - count for "three"
-    8 - 7468726565000000000000000000000000000000000000000000000000000000 - encoding of "three"
+    0 - a                                                                - offset di [1, 2]
+    1 - b                                                                - offset di [3]
+    2 - 0000000000000000000000000000000000000000000000000000000000000002 - contatore per [1, 2]
+    3 - 0000000000000000000000000000000000000000000000000000000000000001 - codifica di 1
+    4 - 0000000000000000000000000000000000000000000000000000000000000002 - codifica di 2
+    5 - 0000000000000000000000000000000000000000000000000000000000000001 - contatore per [3]
+    6 - 0000000000000000000000000000000000000000000000000000000000000003 - codifica di 3
 
-Offset ``c`` points to the start of the content of the string ``"one"`` which is line 3 (96 bytes); thus ``c = 0x0000000000000000000000000000000000000000000000000000000000000060``.
+L'offset ``a`` punta all'inizio del contenuto dell'array ``[1, 2]`` che è linea 2 (64 byte); quindi ``a = 0x0000000000000000000000000000000000000000000000000000000000000040``.
 
-Offset ``d`` points to the start of the content of the string ``"two"`` which is line 5 (160 bytes); thus ``d = 0x00000000000000000000000000000000000000000000000000000000000000a0``.
+L'offset ``b`` punta all'inizio del contenuto dell'array ``[3]`` che è linea 5 (160 byte); quindi ``b = 0x00000000000000000000000000000000000000000000000000000000000000a0``.
 
-Offset ``e`` points to the start of the content of the string ``"three"`` which is line 7 (224 bytes); thus ``e = 0x00000000000000000000000000000000000000000000000000000000000000e0``.
+Poi si codificano le stringhe del secondo array:
 
+ - ``0x0000000000000000000000000000000000000000000000000000000000000003`` (numero di caratteri nella parola ``"one"``)
+ - ``0x6f6e650000000000000000000000000000000000000000000000000000000000`` (rappresentazione utf8 della parola ``"one"``)
+ - ``0x0000000000000000000000000000000000000000000000000000000000000003`` (numero di caratteri nella parola ``"two"``)
+ - ``0x74776f0000000000000000000000000000000000000000000000000000000000`` (rappresentazione utf8 della parola ``"two"``)
+ - ``0x0000000000000000000000000000000000000000000000000000000000000005`` (numero di caratteri nella parola ``"three"``)
+ - ``0x7468726565000000000000000000000000000000000000000000000000000000`` (rappresentazione utf8 della parola ``"three"``)
 
-Note that the encodings of the embedded elements of the root arrays are not dependent on each other and have the same encodings for a function with a signature ``g(string[],uint[][])``.
-
-Then we encode the length of the first root array:
-
- - ``0x0000000000000000000000000000000000000000000000000000000000000002`` (number of elements in the first root array, 2; the elements themselves are ``[1, 2]``  and ``[3]``)
-
-Then we encode the length of the second root array:
-
- - ``0x0000000000000000000000000000000000000000000000000000000000000003`` (number of strings in the second root array, 3; the strings themselves are ``"one"``, ``"two"`` and ``"three"``)
-
-Finally we find the offsets ``f`` and ``g`` for their respective root dynamic arrays ``[[1, 2], [3]]`` and ``["one", "two", "three"]``, and assemble parts in the correct order:
+Parallelamente al primo array, poché le stringhe sono elementi dinamici bisgona calcolare il loro offset ``c``, ``d`` e ``e``:
 
 .. code-block:: none
 
-    0x2289b18c                                                            - function signature
-     0 - f                                                                - offset of [[1, 2], [3]]
-     1 - g                                                                - offset of ["one", "two", "three"]
-     2 - 0000000000000000000000000000000000000000000000000000000000000002 - count for [[1, 2], [3]]
-     3 - 0000000000000000000000000000000000000000000000000000000000000040 - offset of [1, 2]
-     4 - 00000000000000000000000000000000000000000000000000000000000000a0 - offset of [3]
-     5 - 0000000000000000000000000000000000000000000000000000000000000002 - count for [1, 2]
-     6 - 0000000000000000000000000000000000000000000000000000000000000001 - encoding of 1
-     7 - 0000000000000000000000000000000000000000000000000000000000000002 - encoding of 2
-     8 - 0000000000000000000000000000000000000000000000000000000000000001 - count for [3]
-     9 - 0000000000000000000000000000000000000000000000000000000000000003 - encoding of 3
-    10 - 0000000000000000000000000000000000000000000000000000000000000003 - count for ["one", "two", "three"]
-    11 - 0000000000000000000000000000000000000000000000000000000000000060 - offset for "one"
-    12 - 00000000000000000000000000000000000000000000000000000000000000a0 - offset for "two"
-    13 - 00000000000000000000000000000000000000000000000000000000000000e0 - offset for "three"
-    14 - 0000000000000000000000000000000000000000000000000000000000000003 - count for "one"
-    15 - 6f6e650000000000000000000000000000000000000000000000000000000000 - encoding of "one"
-    16 - 0000000000000000000000000000000000000000000000000000000000000003 - count for "two"
-    17 - 74776f0000000000000000000000000000000000000000000000000000000000 - encoding of "two"
-    18 - 0000000000000000000000000000000000000000000000000000000000000005 - count for "three"
-    19 - 7468726565000000000000000000000000000000000000000000000000000000 - encoding of "three"
+    0 - c                                                                - offset per "one"
+    1 - d                                                                - offset per "two"
+    2 - e                                                                - offset per "three"
+    3 - 0000000000000000000000000000000000000000000000000000000000000003 - contatore per "one"
+    4 - 6f6e650000000000000000000000000000000000000000000000000000000000 - codifica di "one"
+    5 - 0000000000000000000000000000000000000000000000000000000000000003 - contatore per "two"
+    6 - 74776f0000000000000000000000000000000000000000000000000000000000 - codifica di "two"
+    7 - 0000000000000000000000000000000000000000000000000000000000000005 - contatore per "three"
+    8 - 7468726565000000000000000000000000000000000000000000000000000000 - codifica di "three"
 
-Offset ``f`` points to the start of the content of the array ``[[1, 2], [3]]`` which is line 2 (64 bytes); thus ``f = 0x0000000000000000000000000000000000000000000000000000000000000040``.
+L'offset ``c`` punta all'inizio del contenuto della stringa ``"one"`` che è linea 3 (96 bytes); quindi ``c = 0x0000000000000000000000000000000000000000000000000000000000000060``.
 
-Offset ``g`` points to the start of the content of the array ``["one", "two", "three"]`` which is line 10 (320 bytes); thus ``g = 0x0000000000000000000000000000000000000000000000000000000000000140``.
+L'offset ``d`` punta all'inizio del contenuto della stringa ``"two"`` che è linea 5 (160 bytes); quindi ``d = 0x00000000000000000000000000000000000000000000000000000000000000a0``.
+
+L'offset ``e`` punta all'inizio del contenuto della stringa ``"three"`` che è linea 7 (224 bytes); quindi ``e = 0x00000000000000000000000000000000000000000000000000000000000000e0``.
+
+Notare che le codifiche degli elementi degli array di base sono indipendenti e hanno la stessa codifica di una funzione con signature ``g(string[],uint[][])``.
+
+Successivamente si codifica la lunghezza del primo array di base:
+
+ - ``0x0000000000000000000000000000000000000000000000000000000000000002`` (numero di elementi nel primo array di base, 2; gli elementi sono ``[1, 2]`` sono ``[3]``)
+
+Quindi si codifica la lunghezza del secondo array di base:
+
+ - ``0x0000000000000000000000000000000000000000000000000000000000000003`` (numero di stringhe nel secondo array di base, 3; le stringhe sono ``"one"``, ``"two"`` e ``"three"``)
+
+Infine si calcolano gli offset ``f`` e ``g`` per i rispettivi array dinamici di base ``[[1, 2], [3]]`` e ``["one", "two", "three"]``, 
+e si compongono le parti nell'ordine corretto:
+
+.. code-block:: none
+
+    0x2289b18c                                                            - signature della funzione
+     0 - f                                                                - offset di [[1, 2], [3]]
+     1 - g                                                                - offset di ["one", "two", "three"]
+     2 - 0000000000000000000000000000000000000000000000000000000000000002 - contatore per [[1, 2], [3]]
+     3 - 0000000000000000000000000000000000000000000000000000000000000040 - offset di [1, 2]
+     4 - 00000000000000000000000000000000000000000000000000000000000000a0 - offset di [3]
+     5 - 0000000000000000000000000000000000000000000000000000000000000002 - contatore per [1, 2]
+     6 - 0000000000000000000000000000000000000000000000000000000000000001 - codifica di 1
+     7 - 0000000000000000000000000000000000000000000000000000000000000002 - codifica di 2
+     8 - 0000000000000000000000000000000000000000000000000000000000000001 - contatore per [3]
+     9 - 0000000000000000000000000000000000000000000000000000000000000003 - codifica di 3
+    10 - 0000000000000000000000000000000000000000000000000000000000000003 - contatore per ["one", "two", "three"]
+    11 - 0000000000000000000000000000000000000000000000000000000000000060 - offset per "one"
+    12 - 00000000000000000000000000000000000000000000000000000000000000a0 - offset per "two"
+    13 - 00000000000000000000000000000000000000000000000000000000000000e0 - offset per "three"
+    14 - 0000000000000000000000000000000000000000000000000000000000000003 - contatore per "one"
+    15 - 6f6e650000000000000000000000000000000000000000000000000000000000 - codifica di "one"
+    16 - 0000000000000000000000000000000000000000000000000000000000000003 - contatore per "two"
+    17 - 74776f0000000000000000000000000000000000000000000000000000000000 - codifica di "two"
+    18 - 0000000000000000000000000000000000000000000000000000000000000005 - contatore per "three"
+    19 - 7468726565000000000000000000000000000000000000000000000000000000 - codifica di "three"
+
+L'offset ``f`` punta all'inizio del contenuto dell'array ``[[1, 2], [3]]`` che è linea 2 (64 bytes); quindi ``f = 0x0000000000000000000000000000000000000000000000000000000000000040``.
+
+L'Offset ``g`` punta all'inizio del contenuto dell'array ``["one", "two", "three"]`` che è linea 10 (320 bytes); quindi ``g = 0x0000000000000000000000000000000000000000000000000000000000000140``.
 
 .. _abi_events:
 
-Events
+Eventi
 ======
 
-Events are an abstraction of the Ethereum logging/event-watching protocol. Log entries provide the contract's address, a series of up to four topics and some arbitrary length binary data. Events leverage the existing function ABI in order to interpret this (together with an interface spec) as a properly typed structure.
+Gli eventi sono una astrazione del meccanismo di logging/event-watching di Ethereum. 
+Le entry nel log forniscono l'indirizzo del contratto, una serie di massimo quattro topic ed alcuni dati binari di lunghezza arbitraria. 
+Gli eventi su basano sugli ABI delle funzioni per interpretare gli eventi (assieme ad una specifica di interfaccia) come una struttura propriamente definita.
 
-Given an event name and series of event parameters, we split them into two sub-series: those which are indexed and those which are not. Those which are indexed, which may number up to 3, are used alongside the Keccak hash of the event signature to form the topics of the log entry. Those which are not indexed form the byte array of the event.
+Dato un nome di un evento ed una serie di parametri, questi vegnono suddivisi in sotto-serie: 
+quelli che sono indicizzati e quelli che non lo sono. Quelli indicizzati, che possono essere al massimo 3, ù
+sono utilizzati parallelamente all'hash Keccak della signature dell'evento per formare il topic della entry nel log. 
+Quelli non indicizzati formano l'array di byte dell'evento.
 
-In effect, a log entry using this ABI is described as:
+Una entry nel log entry che utilizza questo ABI è descritta come:
 
-- ``address``: the address of the contract (intrinsically provided by Ethereum);
-- ``topics[0]``: ``keccak(EVENT_NAME+"("+EVENT_ARGS.map(canonical_type_of).join(",")+")")`` (``canonical_type_of`` is a function that simply returns the canonical type of a given argument, e.g. for ``uint indexed foo``, it would return ``uint256``). If the event is declared as ``anonymous`` the ``topics[0]`` is not generated;
-- ``topics[n]``: ``abi_encode(EVENT_INDEXED_ARGS[n - 1])`` (``EVENT_INDEXED_ARGS`` is the series of ``EVENT_ARGS`` that are indexed);
-- ``data``: ABI encoding of ``EVENT_NON_INDEXED_ARGS`` (``EVENT_NON_INDEXED_ARGS`` is the series of ``EVENT_ARGS`` that are not indexed, ``abi_encode`` is the ABI encoding function used for returning a series of typed values from a function, as described above).
+- ``address``: l'indirizzo del contratto (fornito intrinsecamente da Ethereum);
+- ``topics[0]``: ``keccak(EVENT_NAME+"("+EVENT_ARGS.map(canonical_type_of).join(",")+")")`` (``canonical_type_of`` è una funzione che restituisce il tipo canonico di un dato argomento, e.g. per ``uint indexed foo``, restituisce ``uint256``). Se l'evento è dichiarato come ``anonymous`` il ``topics[0]`` non viene generato;
+- ``topics[n]``: ``abi_encode(EVENT_INDEXED_ARGS[n - 1])`` (``EVENT_INDEXED_ARGS`` è la serie di ``EVENT_ARGS`` indicizzati);
+- ``data``: ABI codifica di ``EVENT_NON_INDEXED_ARGS`` (``EVENT_NON_INDEXED_ARGS`` è la serie di ``EVENT_ARGS`` non indicizzati, ``abi_encode`` è la codifica ABI della funzione usata per restituire una serie di valori con tipo da una funzione, come descritto sopra).
 
-For all types of length at most 32 bytes, the ``EVENT_INDEXED_ARGS`` array contains
-the value directly, padded or sign-extended (for signed integers) to 32 bytes, just as for regular ABI encoding.
-However, for all "complex" types or types of dynamic length, including all arrays, ``string``, ``bytes`` and structs,
-``EVENT_INDEXED_ARGS`` will contain the *Keccak hash* of a special in-place encoded value
-(see :ref:`indexed_event_encoding`), rather than the encoded value directly.
-This allows applications to efficiently query for values of dynamic-length types
-(by setting the hash of the encoded value as the topic), but leaves applications unable
-to decode indexed values they have not queried for. For dynamic-length types,
-application developers face a trade-off between fast search for predetermined values
-(if the argument is indexed) and legibility of arbitrary values (which requires that
-the arguments not be indexed). Developers may overcome this tradeoff and achieve both
-efficient search and arbitrary legibility by defining events with two arguments — one
-indexed, one not — intended to hold the same value.
+Per tutti i tipi di lunghezza al più 32 byte, l'array ``EVENT_INDEXED_ARGS`` contiene direttamente i valori
+con padding o con segno esteso (per gli interi con segno) a 32 byte, come per la codifica ABI.
+Comunque per tutti i tipi "complessi" o di lunghezza dinamica, includendo tutti gli array, ``string``, ``bytes`` e strutture,
+``EVENT_INDEXED_ARGS`` contiene *l'hash Keccak* di un valore speciale (see :ref:`indexed_event_encoding`), 
+invece del valore codificato direttamente.
+Questo permette alle applicazioni di richiedere efficientemente i valori degli array di lunghezza dinamica
+(impostando l'hash del valore codificato e per il topic), ma rende le applicazioni impossibilitate a
+decodificare i valori indicizzati che non sono stati richiesti. Per tipi di lunghezza dinamica,
+gli sviluppatori di applicazioni devono trovare un compromesso tra ricerca veloce per valori predeterminati
+(se gli argomenti erano indicizzati) e and leggibilità di valori arbitrari (che richiedono gli argomenti 
+non siano indicizzati). Gli sviluppatori possono superare questo limite ed ottenere sia una
+ricerca efficiente e leggibilità arbitraria definendo eventi con due argomenti — uno indicizzato
+e uno no — entrambi contenenti lo stesso valore.
 
 .. _abi_json:
 
 JSON
 ====
 
-The JSON format for a contract's interface is given by an array of function and/or event descriptions.
-A function description is a JSON object with the fields:
+Il formato JSON per l'interfaccia di un contratto è composta da un array di funzioni e/o descrizioni di eventi.
+La descrizione di una funzione è un oggetto JSON con i seguenti campi:
 
-- ``type``: ``"function"``, ``"constructor"``, or ``"fallback"`` (the :ref:`unnamed "default" function <fallback-function>`);
-- ``name``: the name of the function;
-- ``inputs``: an array of objects, each of which contains:
+- ``type``: ``"function"``, ``"constructor"``, o ``"fallback"`` (la :ref:`unnamed "default" function <fallback-function>`);
+- ``name``: nome della funzione;
+- ``inputs``: un array di oggetti, ognuno dei quali contenenti:
 
-  * ``name``: the name of the parameter;
-  * ``type``: the canonical type of the parameter (more below).
-  * ``components``: used for tuple types (more below).
+  * ``name``: il nome del parametro
+  * ``type``: il tipo del parametro (più informazioni sotto)
+  * ``components``: usato per i tipi tuple (più informazioni sotto)
 
-- ``outputs``: an array of objects similar to ``inputs``, can be omitted if function doesn't return anything;
-- ``stateMutability``: a string with one of the following values: ``pure`` (:ref:`specified to not read blockchain state <pure-functions>`), ``view`` (:ref:`specified to not modify the blockchain state <view-functions>`), ``nonpayable`` (function does not accept Ether) and ``payable`` (function accepts Ether);
-- ``payable``: ``true`` if function accepts Ether, ``false`` otherwise;
-- ``constant``: ``true`` if function is either ``pure`` or ``view``, ``false`` otherwise.
+- ``outputs``: un array di oggetti simile a ``inputs``, può essere omesso se la funzione non ha valori di ritorno
+- ``stateMutability``: una stringa con uno dei seguenti valori: ``pure`` (:ref:`specificato per non leggere lo stato della blockchain <pure-functions>`), ``view`` (:ref:`specificato per non modificare lo stato della blockchain <view-functions>`), ``nonpayable`` (funzione che non accetta Ether) e ``payable`` (funzione che accetta Ether)
+- ``payable``: ``true`` se la funzione accetta Ether, ``false`` altrimenti
+- ``constant``: ``true`` se la funzione è ``pure`` o ``view``, ``false`` altrimenti.
 
-``type`` can be omitted, defaulting to ``"function"``, likewise ``payable`` and ``constant`` can be omitted, both defaulting to ``false``.
+``type`` può essere omesso, default a ``"function"``, similmente ``payable`` e ``constant`` possono essere omessi, entrambi ``false`` di default.
 
-Constructor and fallback function never have ``name`` or ``outputs``. Fallback function doesn't have ``inputs`` either.
+Il costruttore e la funzione di fallback non hanno ``name`` o ``outputs``. La funzione di fallback non ha nemmeno ``inputs``.
 
 .. warning::
-    The fields ``constant`` and ``payable`` are deprecated and will be removed in the future. Instead, the ``stateMutability`` field can be used to determine the same properties.
+  I campi ``constant`` e ``payable`` sono deprecati e saranno rimossi in futuro. Invece, il campo ``stateMutability`` può essere usato per determinare le stesse proprietà.
 
 .. note::
-    Sending non-zero Ether to non-payable function will revert the transaction.
+  L'invio di un valore di Ether ad una funzione non payable annulla la transazione.
 
-An event description is a JSON object with fairly similar fields:
+La descrizione di un evento è un oggetto JSON con campi simili:
 
-- ``type``: always ``"event"``
-- ``name``: the name of the event;
-- ``inputs``: an array of objects, each of which contains:
+- ``type``: sempre ``"event"``
+- ``name``: nome dell'evento
+- ``inputs``: array di oggetti, ognuno dei quali contiene:
 
-  * ``name``: the name of the parameter;
-  * ``type``: the canonical type of the parameter (more below).
-  * ``components``: used for tuple types (more below).
-  * ``indexed``: ``true`` if the field is part of the log's topics, ``false`` if it one of the log's data segment.
+  * ``name``: nome del parametro
+  * ``type``: tipo del parametro (più informazioni sotto).
+  * ``components``: usato per i tipi tupla (più informazioni sotto).
+  * ``indexed``: ``true`` se il campo fa parte del topic del log, ``false`` se fa parte di uno dei segmenti di dati del log
 
-- ``anonymous``: ``true`` if the event was declared as ``anonymous``.
+- ``anonymous``: ``true`` se l'evento è stato dichiarato ``anonymous``.
 
-For example,
+per esempio,
 
 ::
 
@@ -507,7 +514,7 @@ For example,
         bytes32 b;
     }
 
-would result in the JSON:
+risulta nel JSON:
 
 .. code-block:: json
 
@@ -526,21 +533,18 @@ would result in the JSON:
   "outputs": []
   }]
 
-Handling tuple types
---------------------
+Gestire i Tipi di Dato Tupla
+----------------------------
 
-Despite that names are intentionally not part of the ABI encoding they do make a lot of sense to be included
-in the JSON to enable displaying it to the end user. The structure is nested in the following way:
+Nonostante i nomi non facciano intenzionalmente parte della codifica ABI, questi vengono inclusi nel JSON 
+per consentire la visualizzazione all'utente finale. La struttura è nidificata nel modo seguente:
 
-An object with members ``name``, ``type`` and potentially ``components`` describes a typed variable.
-The canonical type is determined until a tuple type is reached and the string description up
-to that point is stored in ``type`` prefix with the word ``tuple``, i.e. it will be ``tuple`` followed by
-a sequence of ``[]`` and ``[k]`` with
-integers ``k``. The components of the tuple are then stored in the member ``components``,
-which is of array type and has the same structure as the top-level object except that
-``indexed`` is not allowed there.
+Un oggetto con campi ``name``, ``type`` e potenzialmente ``components`` descrivere una variabile con tipo.
+I componenti di una tupla sono salvati nel campo ``components``,
+che è di tipo arrat ed ha la stessa struttura come l'oggetto del top-level tranne per il fatto che
+``indexed`` non è permesso.
 
-As an example, the code
+Per esempio
 
 ::
 
@@ -555,7 +559,7 @@ As an example, the code
         function g() public returns (S memory s, T memory t, uint a);
     }
 
-would result in the JSON:
+risulta nel JSON:
 
 .. code-block:: json
 
@@ -620,26 +624,25 @@ would result in the JSON:
 Strict Encoding Mode
 ====================
 
-Strict encoding mode is the mode that leads to exactly the same encoding as defined in the formal specification above.
-This means offsets have to be as small as possible while still not creating overlaps in the data areas and thus no gaps are
-allowed.
+Strict encoding mode è il modo che permette esattamente la stessa codifica come definito nella specifica fomale sopra.
+Questo significa che l'offset deve essere il più piccolo possibile ma non creare sovrapposizioni nell'area di dati.
 
-Usually, ABI decoders are written in a straightforward way just following offset pointers, but some decoders
-might enforce strict mode. The Solidity ABI decoder currently does not enforce strict mode, but the encoder
-always creates data in strict mode.
+Solitamente, i decoder ABI sono scritti in maniera diretta seguendo il puntatore dell'offset, ma alcuni decoder
+ma alcuni decoder possono imporre la strict mode. Il decoder ABI Solidity attualmente non impone la strict mode, ma l'encoder
+crea sempre i dati in strict mode.
 
 Non-standard Packed Mode
 ========================
 
-Through ``abi.encodePacked()``, Solidity supports a non-standard packed mode where:
+Attraverso ``abi.encodePacked()``, Solidity supporta una non-standard packed mode dove:
 
 - types shorter than 32 bytes are neither zero padded nor sign extended and
 - dynamic types are encoded in-place and without the length.
 - array elements are padded, but still encoded in-place
 
-Furthermore, structs as well as nested arrays are not supported.
+Inoltre, sia le strutture che gli array innestati non sono supportati.
 
-As an example, the encoding of ``int16(-1), bytes1(0x42), uint16(0x03), string("Hello, world!")`` results in:
+Per esempio, la codifica di ``int16(-1), bytes1(0x42), uint16(0x03), string("Hello, world!")`` risulta in:
 
 .. code-block:: none
 
@@ -649,60 +652,53 @@ As an example, the encoding of ``int16(-1), bytes1(0x42), uint16(0x03), string("
             ^^^^                           uint16(0x03)
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ string("Hello, world!") without a length field
 
-More specifically:
- - During the encoding, everything is encoded in-place. This means that there is
-   no distinction between head and tail, as in the ABI encoding, and the length
-   of an array is not encoded.
- - The direct arguments of ``abi.encodePacked`` are encoded without padding,
-   as long as they are not arrays (or ``string`` or ``bytes``).
- - The encoding of an array is the concatenation of the
-   encoding of its elements **with** padding.
- - Dynamically-sized types like ``string``, ``bytes`` or ``uint[]`` are encoded
-   without their length field.
- - The encoding of ``string`` or ``bytes`` does not apply padding at the end
-   unless it is part of an array or struct (then it is padded to a multiple of
-   32 bytes).
+Più in dettaglio:
+ - Durante la codifica, tutto viene codificato in-place. Questo significa che non c'è distinzione tra 
+   head e tail, come avviene nella codifica ABI, e la lunghezza dell'array non è codificata.
+ - Gli argomenti di ``abi.encodePacked`` sono codificati senza padding se non sono array (o ``string`` o ``bytes``).
+ - La codifica di un array è la concatenazione della codifica dei suoi elementi **con** padding.
+ - Tipi di dimensione dinamica come ``string``, ``bytes`` o ``uint[]`` sono codificati senza il campo lunghezza.
+ - La codifica di ``string`` o ``bytes`` non applica il padding alla fine a meno che non faccia parte di un array o 
+   una struttura (in quel caso viene effettuato il padding a un multiplo di 32 byte).
 
-In general, the encoding is ambiguous as soon as there are two dynamically-sized elements,
-because of the missing length field.
+In generale, la codifica è ambigua se ci sono due elementi di dimensione dinamica, a causa della mancanza del campo lunghezza.
 
-If padding is needed, explicit type conversions can be used: ``abi.encodePacked(uint16(0x12)) == hex"0012"``.
+Se il padding è necessario, si può utilizzare una conversione esplicita: ``abi.encodePacked(uint16(0x12)) == hex"0012"``.
 
-Since packed encoding is not used when calling functions, there is no special support
-for prepending a function selector. Since the encoding is ambiguous, there is no decoding function.
+Poiché la codifica packed non viene utilizzata durante al chiamata a funzione, non c'è un supporto per
+inserire davanti un selettore di funzione. Poiché la codifica è ambigua, non esiste una funzione di decodifica.
 
 .. warning::
 
-  If you use ``keccak256(abi.encodePacked(a, b))`` and both ``a`` and ``b`` are dynamic types,
-  it is easy to craft collisions in the hash value by moving parts of ``a`` into ``b`` and
-  vice-versa. More specifically, ``abi.encodePacked("a", "bc") == abi.encodePacked("ab", "c")``.
-  If you use ``abi.encodePacked`` for signatures, authentication or data integrity, make
-  sure to always use the same types and check that at most one of them is dynamic.
-  Unless there is a compelling reason, ``abi.encode`` should be preferred.
+  Se viene utilizzato ``keccak256(abi.encodePacked(a, b))`` e sia ``a`` e ``b`` sono tipi dinamici,
+  è facile generare collisioni nei valori dell'hash value spostando parte di ``a`` in ``b`` e viceversa.
+  Più in dettaglio, ``abi.encodePacked("a", "bc") == abi.encodePacked("ab", "c")``.
+  Se viene utilizzato ``abi.encodePacked`` per le signature, autenticazione o integrità dei dati, assicurarsi di
+  utilizzare sempre gli stessi tipi e controllare che al più uno di questi sia dinamico.
+  A meno che non ci sia un motivo specifico, ``abi.encode`` dovrebbe essere utilizzato.
 
 
 .. _indexed_event_encoding:
 
-Encoding of Indexed Event Parameters
-====================================
+Codifica di Parametri di Eventi Indicizzati
+===========================================
 
-Indexed event parameters that are not value types, i.e. arrays and structs are not
-stored directly but instead a keccak256-hash of an encoding is stored. This encoding
-is defined as follows:
+I parametri di eventi indicizzati che non sono tipi, i.e. array e strutture, non sono salvati 
+direttamente ma viene salvato un hash keccak256-hash della codifica. Questa codifica è definita come segue:
 
- - the encoding of a ``bytes`` and ``string`` value is just the string contents
-   without any padding or length prefix.
- - the encoding of a struct is the concatenation of the encoding of its members,
-   always padded to a multiple of 32 bytes (even ``bytes`` and ``string``).
- - the encoding of an array (both dynamically- and statically-sized) is
-   the concatenation of the encoding of its elements, always padded to a multiple
-   of 32 bytes (even ``bytes`` and ``string``) and without any length prefix
+ - la codifica di un valore ``bytes`` e ``string`` è semplicemente il contenuto della stringa
+   senza padding o un prefisso con la lunghezza
+ - la codifica di una struttura è la concatenazione della codifica dei suoi elementi,
+   sempre con padding ad un multiplo di 32 byte (anche ``bytes`` e ``string``)
+ - la codifica di un array (sia di dimensione statica che dinamica) è la concatenazione della
+   codifica dei suoi elementi, sempre con padding ad un multiplo di 32 byte (anche ``bytes`` e ``string``) 
+   senza prefisso di lunghezza
 
-In the above, as usual, a negative number is padded by sign extension and not zero padded.
-``bytesNN`` types are padded on the right while ``uintNN`` / ``intNN`` are padded on the left.
+Per un numero negativo si effettua il padding estendendo il segno e non con zeri.
+Ai tipi ``bytesNN`` viene applicato il padding a destra mentre a ``uintNN`` / ``intNN`` padding a sinistra.
 
 .. warning::
 
-    The encoding of a struct is ambiguous if it contains more than one dynamically-sized
-    array. Because of that, always re-check the event data and do not rely on the search result
-    based on the indexed parameters alone.
+    La codifica di una struttura è ambigua se contiene più di un array di dimensione dinamica. 
+    A causa di questo, controllare sempre gli eventi dei dati e non affidarsi solamente sui risultati
+    della ricerca sui parametri indicizzati.
