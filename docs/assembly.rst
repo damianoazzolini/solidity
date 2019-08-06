@@ -33,20 +33,20 @@ L'inline assembly ha le seguenti caratteristiche:
 * chiamate a funzione: ``function f(x) -> y { switch x case 0 { y := 1 } default { y := mul(x, f(sub(x, 1))) }   }``
 
 .. warning::
-    Inline assembly è un metododi basso livello per accedere alla Ethereum Virtual Machine.
+    Inline assembly è un metodi di basso livello per accedere alla Ethereum Virtual Machine.
     Questo bypassa molti controlli di sicurezza effettuati da Solidity quindi dovrebbe
     essere usato solamente se necessario e se si è confidenti nel suo utilizzo.
 
 Sintassi
 --------
 
-Assembly analizza i commenti, letterali ed indentificatori allo stesso modo di Solidity, quindi possono essere
+Assembly analizza i commenti, letterali ed identificatori allo stesso modo di Solidity, quindi possono essere
 utilizzati ``//`` e ``/* */`` per i commenti. C'è una eccezione: gli identificatori nell'inline assembly 
 possono contenere ``.``. 
 L'inline assembly è marcato con ``assembly { ... }`` e all'interno queste 
 parentesi graffe, si possono usare i seguenti (vedere la sezione seguente per più dettagli):
 
- - letteralo, i.e. ``0x123``, ``42`` o ``"abc"`` (stringhe fino a 32 caratteri)
+ - letterali, i.e. ``0x123``, ``42`` o ``"abc"`` (stringhe fino a 32 caratteri)
  - opcode in stile funzionale, e.g. ``add(1, mlod(0))``
  - dichiarazioni di variabili, e.g. ``let x := 7``, ``let x := add(y, 3)`` o ``let x`` (viene assegnato come valore iniziale 0)
  - identificatori (variabili locali ad assembly ed esterne se vengono utilizzate come inline assembly), e.g. ``add(3, x)``, ``sstore(x_slot, 2)``
@@ -61,7 +61,7 @@ Le seguenti caratteristiche sono disponibili per standalone assembly:
  - opcode jump
 
 .. note::
-  Standalone assembly è supportato per backwards compatibility ma non è più documentato in questa guida.
+  L'assembly standalone assembly è supportato per retrocompatibilità ma non è più documentato in questa guida.
 
 Alla fine del blocco ``assembly { ... }``, lo stack deve essere bilanciato, almeno che non sia
 richiesto esplicitamente. Se non bilanciato, il compilatore genera un warning.
@@ -103,7 +103,7 @@ Inline assembly è anche utile nel caso in cui l'ottimizzatore non produca codic
 
 
     library VectorSum {
-        // Questa funzione è meno efficente perché attualmente l'ottimizzatore non riesce a
+        // Questa funzione è meno efficiente perché attualmente l'ottimizzatore non riesce a
         // rimuovere i controlli sulla dimensione dell'array durante l'accesso.
         function sumSolidity(uint[] memory _data) public pure returns (uint sum) {
             for (uint i = 0; i < _data.length; ++i)
@@ -162,7 +162,7 @@ Gli opcode contrassegnati con `` F``, `` H``, `` B`` o `` C`` sono presenti risp
 Nella seguente lista, ``mem[a...b)`` indica i byte di memoria che partono dalla posizione ``a`` fino a (ma non inclusa)
 ``b`` e ``storage[p]`` indica il contenuto dello storage in posizione ``p``.
 
-Gli opcode ``pushi`` e ``jumpdest`` non possono essere utilizzati diretamente.
+Gli opcode ``pushi`` e ``jumpdest`` non possono essere utilizzati direttamente.
 
 Nella grammatica, gli opcode sono rappresentati come identificatori predefiniti.
 
@@ -229,7 +229,7 @@ Nella grammatica, gli opcode sono rappresentati come identificatori predefiniti.
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | jump(label)             | `-` | F | salto alla label / posizione del codice                         |
 +-------------------------+-----+---+-----------------------------------------------------------------+
-| jumpi(label, cond)      | `-` | F | jump alla label se la condizione no è zero                      |
+| jumpi(label, cond)      | `-` | F | jump alla label se la condizione non è zero                     |
 +-------------------------+-----+---+-----------------------------------------------------------------+
 | pc                      |     | F | posizione corrente nel codice                                   |
 +-------------------------+-----+---+-----------------------------------------------------------------+
@@ -349,56 +349,55 @@ Nella grammatica, gli opcode sono rappresentati come identificatori predefiniti.
 +-------------------------+-----+---+-----------------------------------------------------------------+
 
 Letterali
---------_
+---------
 
-You can use integer constants by typing them in decimal or hexadecimal notation and an
-appropriate ``PUSHi`` instruction will automatically be generated. The following creates code
-to add 2 and 3 resulting in 5 and then computes the bitwise ``AND`` with the string "abc".
-The final value is assigned to a local variable called ``x``.
-Strings are stored left-aligned and cannot be longer than 32 bytes.
+È possibile utilizzare costanti intere in notazione decimale o esadecimale e
+le istruzioni appropriate `` PUSHi`` verranno generate automaticamente. Quanto segue crea il codice
+per aggiungere 2 e 3 risultanti in 5 e quindi calcola `` AND`` bit a bit con la stringa "abc".
+Il valore finale è assegnato ad una variabile locale chiamata `` x``.
+Le stringhe sono memorizzate allineate a sinistra e non possono superare i 32 byte.
 
 .. code::
 
     assembly { let x := and("abc", add(3, 2)) }
 
 
-Functional Style
------------------
+Stile Funzionale
+----------------
 
-For a sequence of opcodes, it is often hard to see what the actual
-arguments for certain opcodes are. In the following example,
-``3`` is added to the contents in memory at position ``0x80``.
+Per una sequenza di opcode, è spesso difficile capire quali sono gli argomenti. 
+Nell'esempio seguente, ``3`` viene aggiunto nel contesto in memoria alla posizione ``0x80``.
 
 .. code::
 
     3 0x80 mload add 0x80 mstore
 
-Solidity inline assembly has a "functional style" notation where the same code
-would be written as follows:
+Solidity inline assembly offre una notazione in "stile funzionale" dove lo stesso codice
+risulta scritto come:
 
 .. code::
 
     mstore(0x80, add(mload(0x80), 3))
 
-If you read the code from right to left, you end up with exactly the same
-sequence of constants and opcodes, but it is much clearer where the
-values end up.
+Se il codice viene letto da destra a sinistra, il tutto risulta esattamente nella stessa sequenza 
+di costanti ed opcode ma è molto più chiara la disposizione dei valori.
 
-If you care about the exact stack layout, just note that the
-syntactically first argument for a function or opcode will be put at the
-top of the stack.
+Se si è interessati alla struttura esatta dello stack, notare che il primo argomento 
+per una funzione o opcode sarà inserito in cima allo stack.
 
-Access to External Variables, Functions and Libraries
------------------------------------------------------
+Accesso a Variabili Esterne, Funzioni e Librerie
+------------------------------------------------
 
-You can access Solidity variables and other identifiers by using their name.
-For variables stored in the memory data location, this pushes the address, and not the value
-onto the stack. Variables stored in the storage data location are different, as they might not
-occupy a full storage slot, so their "address" is composed of a slot and a byte-offset
-inside that slot. To retrieve the slot pointed to by the variable ``x``, you
-use ``x_slot``, and to retrieve the byte-offset you use ``x_offset``.
+Si può accedere alle variabili Solidity e ad altri identificatori usando il loro nome.
+Per le variabili archiviate nella posizione dei dati di memoria, 
+questo spinge l'indirizzo e non il valore nello stack. 
+Le variabili archiviate nella posizione storage sono diverse, in quanto potrebbero non 
+occupare uno slot di archiviazione completo, quindi il loro "indirizzo" è 
+composto da uno slot e da un offset di byte all'interno di quello slot. 
+Per recuperare lo slot a cui punta la variabile `` x``, si usa `` x_slot``, e per 
+recuperare l'offset di byte si usa `` x_offset``.
 
-Local Solidity variables are available for assignments, for example:
+Le variabili locali Solidity sono disponibili per gli assegnamenti, per esempio:
 
 .. code::
 
@@ -408,37 +407,37 @@ Local Solidity variables are available for assignments, for example:
         uint b;
         function f(uint x) public view returns (uint r) {
             assembly {
-                r := mul(x, sload(b_slot)) // ignore the offset, we know it is zero
+                r := mul(x, sload(b_slot)) // ignoriamo l'offset, è 0
             }
         }
     }
 
 .. warning::
-    If you access variables of a type that spans less than 256 bits
-    (for example ``uint64``, ``address``, ``bytes16`` or ``byte``),
-    you cannot make any assumptions about bits not part of the
-    encoding of the type. Especially, do not assume them to be zero.
-    To be safe, always clear the data properly before you use it
-    in a context where this is important:
-    ``uint32 x = f(); assembly { x := and(x, 0xffffffff) /* now use x */ }``
-    To clean signed types, you can use the ``signextend`` opcode:
+    Se vengono accedute variabili di un tipo che si estende per meno di 256 bit 
+    (ad esempio `` uint64``, `` address``, `` bytes16`` o `` byte``), non si possono fare 
+    ipotesi sui bit non facenti parte della codifica del tipo. 
+    Soprattutto, non si deve dare per scontato che siano zero.
+    Per sicurezza, cancellare sempre i dati correttamente prima di usarli in un 
+    contesto in cui questo è importante: 
+    `` uint32 x = f (); assembly {x: = and (x, 0xffffffff) / * ora usa x * /} ``
+    Per pulire i tipi con segno, si può usare il codice operativo `` signextend``:
     ``assembly { signextend(<num_bytes_of_x_minus_one>, x) }``
 
-Labels
-------
+Etichette
+---------
 
-Support for labels has been removed in version 0.5.0 of Solidity.
-Please use functions, loops, if or switch statements instead.
+Il supporto per le etichette è stato rimosso in Solidity versione 0.5.0.
+Usare funzioni, loop, if e swich.
 
-Declaring Assembly-Local Variables
-----------------------------------
+Dichiarazione di Variabili Locali Assembly
+------------------------------------------
 
-You can use the ``let`` keyword to declare variables that are only visible in
-inline assembly and actually only in the current ``{...}``-block. What happens
-is that the ``let`` instruction will create a new stack slot that is reserved
-for the variable and automatically removed again when the end of the block
-is reached. You need to provide an initial value for the variable which can
-be just ``0``, but it can also be a complex functional-style expression.
+Può essere utilizzata la keyword ``let`` per dichiarare variabili che sono solamente
+visibili nell'inline assembly, di fatto solameente nel blocco ``{...}`` corrente. 
+Le istruzioni ``let`` creano un nuovo slot dello stack riservato alle variabili che
+verrà rimosso automaticamente al raggiungimento della fine del blocco.
+Devono essere specificati i valori iniziali delle variabili che possono essere sia 
+``0`` ma anche complesse espressioni in stile funzionale.
 
 .. code::
 
@@ -452,23 +451,22 @@ be just ``0``, but it can also be a complex functional-style expression.
                 {
                     let y := add(sload(v), 1)
                     b := y
-                } // y is "deallocated" here
+                } // y viene "deallocata" qui
                 b := add(b, v)
-            } // v is "deallocated" here
+            } // v viene "deallocata" qui
         }
     }
 
+Assegnamenti
+------------
 
-Assignments
------------
+Gli assegamenti sono possibli per le variabli locali assembly e alle variabili
+delle funzioni locali. Notare che, quando viene assegnata una variabile che punta
+alla mamoria o allo storage, verrà cambiato solamente il puntatore e non i dati.
 
-Assignments are possible to assembly-local variables and to function-local
-variables. Take care that when you assign to variables that point to
-memory or storage, you will only change the pointer and not the data.
-
-Variables can only be assigned expressions that result in exactly one value.
-If you want to assign the values returned from a function that has
-multiple return parameters, you have to provide multiple variables.
+Alle variabili possono essere assegnate solo espressioni che generano esattamente un valore.
+Se si desidera assegnare i valori restituiti da una funzione con più parametri di ritorno, 
+è necessario fornire più variabili.
 
 .. code::
 
@@ -482,9 +480,9 @@ multiple return parameters, you have to provide multiple variables.
 If
 --
 
-The if statement can be used for conditionally executing code.
-There is no "else" part, consider using "switch" (see below) if
-you need multiple alternatives.
+L'istruzione if può essere utilizzata per l'esecuzione condizionale del codice.
+Non esiste una parte "else". Considerare l'utilizzo di "switch" 
+(vedi sotto) se si ha bisogno di più alternative.
 
 .. code::
 
@@ -492,17 +490,17 @@ you need multiple alternatives.
         if eq(value, 0) { revert(0, 0) }
     }
 
-The curly braces for the body are required.
+Le parentesi graffe per il body sono necessarie.
 
 Switch
 ------
 
-You can use a switch statement as a very basic version of "if/else".
-It takes the value of an expression and compares it to several constants.
-The branch corresponding to the matching constant is taken. Contrary to the
-error-prone behaviour of some programming languages, control flow does
-not continue from one case to the next. There can be a fallback or default
-case called ``default``.
+È possibile utilizzare un'istruzione switch come versione di base di "if / else".
+In questo caso, il valore di un'espressione viene confrontato con diverse costanti.
+Viene preso il ramo corrispondente alla costante che fa match. 
+Contrariamente al comportamento soggetto ad errori di alcuni linguaggi di programmazione, 
+il flusso di controllo non continua da un caso all'altro. 
+Può esserci un caso di fallback o predefinito chiamato `` default``.
 
 .. code::
 
@@ -518,20 +516,21 @@ case called ``default``.
         sstore(0, div(x, 2))
     }
 
-The list of cases does not require curly braces, but the body of a
-case does require them.
+L'elenco dei casi non richiede parentesi graffe, 
+ma il corpo di un caso le richiede.
 
-Loops
+Cicli
 -----
 
-Assembly supports a simple for-style loop. For-style loops have
-a header containing an initializing part, a condition and a post-iteration
-part. The condition has to be a functional-style expression, while
-the other two are blocks. If the initializing part
-declares any variables, the scope of these variables is extended into the
-body (including the condition and the post-iteration part).
+Assembly supporta cicli in stile for. I cicli for sono composti da
+un header contenente una parte di inizializzazione, una condizione 
+ed una parte di post iterazione.
+La condizione deve essere un'espressione in stile funzionale mentre le 
+altre due componenti sono blocchi. Se la parte di inizializzazione dichiara 
+delle variabili, lo scope di queste variabili è esteso anche al body (compresa
+la condizione e la parte di post iterazione).
 
-The following example computes the sum of an area in memory.
+L'esempio seguente calcola la somma di un'area in memoria.
 
 .. code::
 
@@ -542,8 +541,8 @@ The following example computes the sum of an area in memory.
         }
     }
 
-For loops can also be written so that they behave like while loops:
-Simply leave the initialization and post-iteration parts empty.
+I cicli for possono essere scritti in modo tale che si comportino come cicli while,
+semplicemente lasciando le parti di inizializzazione e post iterazione vuote.
 
 .. code::
 
@@ -556,23 +555,22 @@ Simply leave the initialization and post-iteration parts empty.
         }
     }
 
-Functions
----------
+Funzioni
+--------
 
-Assembly allows the definition of low-level functions. These take their
-arguments (and a return PC) from the stack and also put the results onto the
-stack. Calling a function looks the same way as executing a functional-style
-opcode.
+Assembly consente la definizione di funzioni di basso livello. 
+Queste prendono gli argomenti (e un PC di ritorno) dallo stack ed inseriscono i risultati nello stack. 
+La chiamata ad una funzione ha lo stesso aspetto dell'esecuzione di un opcode di tipo funzionale. 
 
-Functions can be defined anywhere and are visible in the block they are
-declared in. Inside a function, you cannot access local variables
-defined outside of that function. There is no explicit ``return``
-statement.
+Le funzioni possono essere definite ovunque e sono visibili nel blocco in cui sono dichiarate. 
+All'interno di una funzione, non è possibile accedere alle variabili locali 
+definite al di fuori di quella funzione. 
+Non esiste un'istruzione esplicita di `` ritorno ''.
 
-If you call a function that returns multiple values, you have to assign
-them to a tuple using ``a, b := f(x)`` or ``let a, b := f(x)``.
+Se viene chiamata una funzione che restituisce più valori, bisogna assegnarli ad una tupla 
+utilizzando ``a, b := f(x)`` o ``let a, b := f(x)``.
 
-The following example implements the power function by square-and-multiply.
+L'esempio corrente implementa la funzione potenza attraverso il metodo square-and-multiply.
 
 .. code::
 
@@ -589,118 +587,117 @@ The following example implements the power function by square-and-multiply.
         }
     }
 
-Things to Avoid
+Cose da Evitare
 ---------------
 
-Inline assembly might have a quite high-level look, but it actually is extremely
-low-level. Function calls, loops, ifs and switches are converted by simple
-rewriting rules and after that, the only thing the assembler does for you is re-arranging
-functional-style opcodes, counting stack height for
-variable access and removing stack slots for assembly-local variables when the end
-of their block is reached.
+Inline assembly potrebbe apparire di alto livello, ma in realtà è di livello estremamente basso. 
+Chiamate a funzione, loop, if e switch vengono convertiti da semplici regole di riscrittura e, 
+successivamente, l'unica cosa che l'assemblatore fa è riorganizzare gli opcode in ​​stile funzionale, 
+contare l'altezza dello stack per l'accesso alle variabili e rimuovere gli slot dello stack per 
+le variabili locali di assembly quando viene raggiunta la fine del loro blocco. 
 
-Conventions in Solidity
+Convenzioni in Solidity
 -----------------------
 
-In contrast to EVM assembly, Solidity has types which are narrower than 256 bits,
-e.g. ``uint24``. For efficiency, most arithmetic operations ignore the fact that types can be shorter than 256
-bits, and the higher-order bits are cleaned when necessary,
-i.e., shortly before they are written to memory or before comparisons are performed.
-This means that if you access such a variable
-from within inline assembly, you might have to manually clean the higher-order bits
-first.
+In contrasto con EVM assembly, Solidity offre tipi di dato che sono più piccoli di 256 bit,
+e.g. ``uint24``. Per questioni di efficienza, gran parte delle operazioni aritmetiche ignora 
+il fatto che i tipi possano essere più piccoli di 256 bit e i bit di ordine superiore sono 
+puliti se necessario, per esempio prima di una scrittura in memoria o prima di effettuare 
+confronti. Questo significa che, se una variabile viene acceduta tramite inline assembly, 
+i bit di ordine superiore devono essere puliti manualmente.
 
-Solidity manages memory in the following way. There is a "free memory pointer"
-at position ``0x40`` in memory. If you want to allocate memory, use the memory
-starting from where this pointer points at and update it.
-There is no guarantee that the memory has not been used before and thus
-you cannot assume that its contents are zero bytes.
-There is no built-in mechanism to release or free allocated memory.
-Here is an assembly snippet you can use for allocating memory that follows the process outlined above::
+Solidity gestisce la memoria nel seguente modo. 
+C'è un "puntatore di memoria libera" nella posizione ``0x40``` in memoria. 
+Se si desidera allocare la memoria, utilizzare la memoria a partire da dove questo puntatore punta e aggiornarlo.
+Non vi è alcuna garanzia che la memoria non sia stata utilizzata in precedenza e quindi non si può 
+presumere che il suo contenuto sia pari a zero byte.
+Non c'è un meccanismo integrato per rilasciare o liberare la memoria allocata.
+Ecco un frammento di codice assembly che si può usare per allocare la 
+memoria che segue il processo descritto sopra::
 
     function allocate(length) -> pos {
       pos := mload(0x40)
       mstore(0x40, add(pos, length))
     }
 
-The first 64 bytes of memory can be used as "scratch space" for short-term
-allocation. The 32 bytes after the free memory pointer (i.e., starting at ``0x60``)
-are meant to be zero permanently and is used as the initial value for
-empty dynamic memory arrays.
-This means that the allocatable memory starts at ``0x80``, which is the initial value
-of the free memory pointer.
+I primi 64 byte di memoria possono essere utilizzati come "spazio scratch" per l'allocazione a breve termine. 
+I 32 byte dopo il puntatore di memoria libera (cioè, a partire da ``0x60``) sono destinati ad 
+essere zero permanentemente e sono utilizzati come valore iniziale per array a memoria dinamica vuoti.
+Ciò significa che la memoria allocabile inizia a ``0x80``, che è il valore iniziale del puntatore di memoria libera.
 
-Elements in memory arrays in Solidity always occupy multiples of 32 bytes (this is
-even true for ``byte[]``, but not for ``bytes`` and ``string``). Multi-dimensional memory
-arrays are pointers to memory arrays. The length of a dynamic array is stored at the
-first slot of the array and followed by the array elements.
+Gli elementi in memory array in Solidity occupano sempre multipli di 32 byte 
+(questo vale anche per ``byte[]``, ma non per ``byte`` e ``string``). 
+I memory array multidimensionali sono puntatori a memory array. 
+La lunghezza di un array dinamico è memorizzata nel primo slot dell'array e seguita dagli elementi dell'array.
 
 .. warning::
-    Statically-sized memory arrays do not have a length field, but it might be added later
-    to allow better convertibility between statically- and dynamically-sized arrays, so
-    do not rely on this.
-
+    Gli array di memoria (memory array) di dimensioni statiche non hanno un campo di lunghezza, 
+    ma potrebbe essere aggiunto in seguito per consentire una migliore 
+    convertibilità tra array di dimensioni statiche e dinamiche, quindi non fare affidamento su questo.
 
 Standalone Assembly
 ===================
 
-The assembly language described as inline assembly above can also be used
-standalone and in fact, the plan is to use it as an intermediate language
-for the Solidity compiler. In this form, it tries to achieve several goals:
+Il linguaggio assembly sopra descritto come inline assembly può essere utilizzato anche 
+come linguaggio autonomo e, infatti, si prevede di utilizzarlo come linguaggio intermedio 
+per il compilatore Solidity. 
+In questa forma, gli obiettivi che si vogliono raggiungere sono:
 
-1. Programs written in it should be readable, even if the code is generated by a compiler from Solidity.
-2. The translation from assembly to bytecode should contain as few "surprises" as possible.
-3. Control flow should be easy to detect to help in formal verification and optimization.
+1. I programmi scritti in esso dovrebbero essere leggibili, anche se il codice è generato da un compilatore Solidity.
+2. La traduzione da assembly a bytecode dovrebbe contenere il minor numero possibile di "sorprese".
+3. Il flusso di controllo dovrebbe essere facile da rilevare per aiutare nella verifica formale e nell'ottimizzazione.
 
-In order to achieve the first and last goal, assembly provides high-level constructs
-like ``for`` loops, ``if`` and ``switch`` statements and function calls. It should be possible
-to write assembly programs that do not make use of explicit ``SWAP``, ``DUP``,
-``JUMP`` and ``JUMPI`` statements, because the first two obfuscate the data flow
-and the last two obfuscate control flow. Furthermore, functional statements of
-the form ``mul(add(x, y), 7)`` are preferred over pure opcode statements like
-``7 y x add mul`` because in the first form, it is much easier to see which
-operand is used for which opcode.
+Al fine di raggiungere il primo e l'ultimo obiettivo, assembly fornisce costrutti 
+di alto livello come cicli ``for``, ``if``, ``switch`` e chiamate di funzione. 
+Dovrebbe essere possibile scrivere programmi assembly che non fanno uso esplicito di  
+``SWAP``, ``DUP``, ``JUMP`` e ``JUMPI``, perché i primi due offuscano il flusso di dati 
+e gli ultimi due offuscano il flusso di controllo. 
+Inoltre, le dichiarazioni funzionali della forma ``mul(add(x, y), 7)``` sono preferite 
+alle dichiarazioni di puro opcode come ``7 y x add mul`` perché nella prima forma 
+è molto più facile vedere quale operando è usato per quale opcode.
 
-The second goal is achieved by compiling the
-higher level constructs to bytecode in a very regular way.
-The only non-local operation performed
-by the assembler is name lookup of user-defined identifiers (functions, variables, ...),
-which follow very simple and regular scoping rules and cleanup of local variables from the stack.
+Il secondo obiettivo è raggiunto compilando i costrutti di livello superiore a bytecode 
+in modo molto regolare.
+L'unica operazione non locale eseguita dall'assembler è la ricerca di 
+identificatori definiti dall'utente (funzioni, variabili, ....), che seguono 
+regole di scoping molto semplici e regolari e la pulizia delle variabili locali dallo stack.
 
-Scoping: An identifier that is declared (label, variable, function, assembly)
-is only visible in the block where it was declared (including nested blocks
-inside the current block). It is not legal to access local variables across
-function borders, even if they would be in scope. Shadowing is not allowed.
-Local variables cannot be accessed before they were declared, but
-functions and assemblies can. Assemblies are special blocks that are used
-for e.g. returning runtime code or creating contracts. No identifier from an
-outer assembly is visible in a sub-assembly.
+Scoping: un identificatore che viene dichiarato (etichetta, variabile, funzione, gruppo) 
+è visibile solo nel blocco in cui è stato dichiarato (compresi i blocchi annidati 
+all'interno del blocco corrente). 
+Non è legale accedere alle variabili locali tra i confini delle funzioni anche se nello 
+stesso scope. Lo shadowing non è consentito.
+Le variabili locali non sono accessibili prima che siano state dichiarate, 
+ma funzioni e gli assemblies possono. Gli assemblies sono blocchi speciali che vengono 
+utilizzati per esempio per la restituzione del codice di runtime o la creazione di contratti.
+Nessun identificatore di un assembky esterno è visibile in un suo sub assembly.
 
-If control flow passes over the end of a block, pop instructions are inserted
-that match the number of local variables declared in that block.
-Whenever a local variable is referenced, the code generator needs
-to know its current relative position in the stack and thus it needs to
-keep track of the current so-called stack height. Since all local variables
-are removed at the end of a block, the stack height before and after the block
-should be the same. If this is not the case, compilation fails.
+Se il flusso di controllo passa oltre la fine di un blocco, vengono inserite istruzioni 
+pop che corrispondono al numero di variabili locali dichiarate in quel blocco.
+Ogni volta che una variabile locale viene referenziata,
+il generatore di codice deve conoscere la sua posizione relativa attuale nello stack 
+e quindi deve tenere traccia della cosiddetta altezza attuale dello stack.
+Poiché tutte le variabili locali sono rimosse alla fine di un blocco, l'altezza dello stack
+prima e dopo il blocco dovrebbe essere la stessa.
+Se questo non si verifica, la compilazione fallisce.
 
-Using ``switch``, ``for`` and functions, it should be possible to write
-complex code without using ``jump`` or ``jumpi`` manually. This makes it much
-easier to analyze the control flow, which allows for improved formal
-verification and optimization.
+Usando ``switch``, ``for`` e funzioni, dovrebbe essere possibile scrivere 
+codice complesso senza utilizzare ``jump`` o ``jumpi`` manualmente. 
+Questo rende molto più facile analizzare il flusso di controllo, 
+il che permette una migliore verifica formale e ottimizzazione.
 
-Furthermore, if manual jumps are allowed, computing the stack height is rather complicated.
-The position of all local variables on the stack needs to be known, altrimenti
-neither references to local variables nor removing local variables automatically
-from the stack at the end of a block will work properly.
+Inoltre, se sono consentiti i jump manuali, il calcolo dell'altezza dello stack 
+è piuttosto complicato.
+La posizione di tutte le variabili locali sullo stack deve essere nota, 
+altrimenti né i riferimenti alle variabili locali né la rimozione automatica 
+delle variabili locali dallo stack alla fine di un blocco funzioneranno correttamente.
 
-Example:
+Esempio:
 
-We will follow an example compilation from Solidity to assembly.
-We consider the runtime bytecode of the following Solidity program::
+Di sqguito un esempio di compilazione da Solidity a assembly.
+Viene considerato il bytecode runtime del seguente programma Solidity::
 
     pragma solidity >=0.4.16 <0.7.0;
-
 
     contract C {
         function f(uint x) public pure returns (uint y) {
@@ -710,10 +707,10 @@ We consider the runtime bytecode of the following Solidity program::
         }
     }
 
-The following assembly will be generated::
+Viene generato il seguente assembly ::
 
     {
-      mstore(0x40, 0x80) // store the "free memory pointer"
+      mstore(0x40, 0x80) // store per il "puntatore alla memoria libera"
       // function dispatcher
       switch div(calldataload(0), exp(2, 226))
       case 0xb3de648b {
@@ -723,12 +720,12 @@ The following assembly will be generated::
         return(ret, 0x20)
       }
       default { revert(0, 0) }
-      // memory allocator
+      // allocatore di memoria
       function $allocate(size) -> pos {
         pos := mload(0x40)
         mstore(0x40, add(pos, size))
       }
-      // the contract function
+      // la funzione del contratto
       function f(x) -> y {
         y := 1
         for { let i := 0 } lt(i, x) { i := add(i, 1) } {
@@ -738,24 +735,25 @@ The following assembly will be generated::
     }
 
 
-Assembly Grammar
-----------------
+Grammatica Assembly
+-------------------
 
-The tasks of the parser are the following:
+I compiti del parser sono i seguenti:
 
-- Turn the byte stream into a token stream, discarding C++-style comments
-  (a special comment exists for source references, but we will not explain it here).
-- Turn the token stream into an AST according to the grammar below
-- Register identifiers with the block they are defined in (annotation to the
-  AST node) and note from which point on, variables can be accessed.
+- Trasformare il flusso di byte in un flusso di token, scartando i commenti in stile C++ 
+  (esiste un commento speciale per i riferimenti ai sorgenti, ma non verrà spiegato qui)
+- Trasformare lo stream di token un AST secondo la grammatica sottostante
+- Registrare gli identificatori assieme al blocco nel quale sono definiti
+  (nota al nodo AST) e segnare da quale punto in poi le variabili possono 
+  essere accedute
 
-The assembly lexer follows the one defined by Solidity itself.
+Il lexer assembly segue quello definito da Solidity stesso.
 
-Whitespace is used to delimit tokens and it consists of the characters
-Space, Tab and Linefeed. Comments are regular JavaScript/C++ comments and
-are interpreted in the same way as Whitespace.
+Lo spazio bianco è usato per delimitare i token e consiste nei caratteri Spazio, 
+Tab e Linefeed. I commenti sono normali commenti JavaScript/C++ e sono interpretati 
+allo stesso modo degli spazi bianchi.
 
-Grammar::
+Grammatica::
 
     AssemblyBlock = '{' AssemblyItem* '}'
     AssemblyItem =
