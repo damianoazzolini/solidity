@@ -1,6 +1,6 @@
-#############
-Miscellaneous
-#############
+###########
+Miscellanea
+###########
 
 .. index:: storage, state variable, mapping
 

@@ -2,9 +2,9 @@
 
 .. _voting:
 
-******
-Voting
-******
+*********
+Votazione
+*********
 
 The following contract is quite complex, but showcases
 a lot of Solidity's features. It implements a voting

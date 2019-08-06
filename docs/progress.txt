@@ -7,3 +7,18 @@ Elenco pagine tradotte:
 - metadata.rst
 - natspec-format.rst
 - resources.rst
+- contracts/*
+    - contracts/abstract-contracts.rst
+    - contracts/constant-state-variables.rst
+    - contracts/creating-contracts.rst
+    - contracts/events.rst
+    - contracts/function-modifiers.rst
+    - contracts/functions.rst
+    - contracts/inheritance.rst
+    - contracts/interfaces.rst
+    - contracts/libraries.rst
+    - contracts/using-for.rst
+    - contracts/visibility-and-getters.rst
+- 050-breaking-changes.rst
+- abi-spec.rst
+- assembly.rst

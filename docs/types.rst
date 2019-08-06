@@ -2,9 +2,9 @@
 
 .. _types:
 
-*****
-Types
-*****
+****
+Tipi
+****
 
 Solidity is a statically typed language, which means that the type of each
 variable (state and local) needs to be specified.

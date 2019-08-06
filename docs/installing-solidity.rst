@@ -2,9 +2,9 @@
 
 .. _installing-solidity:
 
-################################
-Installing the Solidity Compiler
-################################
+######################################
+Installazione del Compilatore Solidity
+######################################
 
 Versioning
 ==========

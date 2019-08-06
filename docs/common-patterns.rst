@@ -1,6 +1,6 @@
-###############
-Common Patterns
-###############
+##############
+Pattern Comuni
+##############
 
 .. index:: withdrawal
 

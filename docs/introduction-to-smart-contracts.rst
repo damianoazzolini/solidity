@@ -1,6 +1,6 @@
-###############################
-Introduction to Smart Contracts
-###############################
+#################################
+Introduzione agli Smart Contracts
+#################################
 
 .. _simple-smart-contract:
 

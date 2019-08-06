@@ -1,8 +1,8 @@
 .. _security_considerations:
 
-#######################
-Security Considerations
-#######################
+###########################
+Considerazioni di Sicurezza
+###########################
 
 While it is usually quite easy to build software that works as expected,
 it is much harder to check that nobody can use it in a way that was **not** anticipated.

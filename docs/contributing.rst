@@ -1,6 +1,6 @@
-############
-Contributing
-############
+###########
+Contribuire
+###########
 
 Help is always appreciated!
 

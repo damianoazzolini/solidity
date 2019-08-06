@@ -1,8 +1,8 @@
 .. index:: contract;modular, modular contract
 
-*****************
-Modular Contracts
-*****************
+******************
+Contratti Modulari
+******************
 
 A modular approach to building your contracts helps you reduce the complexity
 and improve the readability which will help to identify bugs and vulnerabilities

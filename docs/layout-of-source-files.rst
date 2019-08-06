@@ -1,6 +1,6 @@
-********************************
-Layout of a Solidity Source File
-********************************
+***********************************
+Layout di un File Sorgente Solidity 
+***********************************
 
 Source files can contain an arbitrary number of
 :ref:`contract definitions<contract_structure>`, import_ directives

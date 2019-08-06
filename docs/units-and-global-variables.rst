@@ -1,6 +1,6 @@
-**************************************
-Units and Globally Available Variables
-**************************************
+*************************
+Unità e Variabili Globali
+*************************
 
 .. index:: wei, finney, szabo, ether
 
