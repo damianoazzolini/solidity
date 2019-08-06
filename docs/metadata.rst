@@ -151,12 +151,12 @@ del commit e la data di compilazione.
   inizi con ``0xa265``.
   Ad esempio, se vengono utilizzate alcune funzionalità sperimentali 
   che influiscono sulla generazione del codice, la mappatura conterrà 
-  anche `` "experimental": true``
+  anche `` "experimental": true``.
 
 .. note::
   Il compilatore utilizza attualmente l'hash "swarm version 0" dei metadati,
   ma questa convenzione potrebbe cambiare in futuro. Non fare quindi affidamento 
-  sulla sequenza iniziale `` 0xa2 0x65 'b' 'z' 'z' 'r' '0'``. Potrebbero essere aggiunti
+  sulla sequenza iniziale ``0xa2 0x65 'b' 'z' 'z' 'r' '0'``. Potrebbero essere aggiunti
   anche ulteriori dati alla struttura CBOR, quindi
   l'opzione migliore è usare un parser per CBOR.
 

@@ -97,15 +97,15 @@ più esplicito. Per alcuni di questi il compilatore lascia dei suggerimenti.
   Ora è quindi necessario convertire esplicitamente i valori in address prima
   di utilizzare ``address``. Per esempio, se ``c`` è un contratto, cambiare
   ``c.transfer(...)`` con ``address(c).transfer(...)``,
-  e ``c.balance`` con ``address(c).balance``.
+  e ``c.balance`` con ``address(c).balance``. 
 
 * Conversioni esplicite tra unrelated contract type non sono più consentite. 
   È possibile convertire solo da un tipo di contratto a uno dei suoi tipi base o antenati. 
   Se si è sicuri che un contratto sia compatibile con il tipo di contratto in cui 
   si vuole convertirlo, anche se non lo eredita, si può aggirare questo limite 
-  convertendo prima in ``address``. Esempio: se `` A`` e `` B`` sono tipi di contratto, 
-  ``B`` non eredita da `` A`` e `` b`` è un contratto di tipo `` B``, si può ancora 
-  convertire `` b`` nel tipo `` A`` usando `` A (address(b)) ``.
+  convertendo prima in ``address``. Esempio: se ``A`` e ``B`` sono tipi di contratto, 
+  ``B`` non eredita da ``A`` e ``b`` è un contratto di tipo ``B``, si può ancora 
+  convertire ``b`` nel tipo ``A`` usando ``A (address(b))``.
   È ancora necessario fare attenzione alle corrispondenti funzioni di fallback payable, 
   come spiegato di seguito.
 
